@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobtics.roadrunner.path.Path;
+import com.acmerobotics.roadrunner.path.Path;
 
 import java.util.List;
 
