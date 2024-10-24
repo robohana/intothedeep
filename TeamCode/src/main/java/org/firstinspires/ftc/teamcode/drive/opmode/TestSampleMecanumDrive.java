@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.drive;
+package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.drive.DriveSignal;
@@ -18,11 +17,9 @@ import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationCon
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
@@ -35,87 +32,84 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceRunner;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_ACCEL;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_VEL;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_VEL;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MOTOR_VELO_PID;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.RUN_USING_ENCODER;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.encoderTicksToInches;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kA;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kStatic;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.*;
 
-/*
- * Simple mecanum drive hardware implementation for REV hardware.
- */
 @Config
-public class SampleMecanumDrive extends MecanumDrive {
+
+public class TestSampleMecanumDrive extends MecanumDrive {
+
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
-
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
 
     public TrajectorySequenceRunner trajectorySequenceRunner;
-
     public static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
     public static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
-
     public TrajectoryFollower follower;
-
     public DcMotorEx leftFront, leftRear, rightRear, rightFront;
-    public List<DcMotorEx> motors;
-
-    //private IMU imu;
+    public List<DcMotorEx> motors = new ArrayList<>();
     public VoltageSensor batteryVoltageSensor;
-
     public List<Integer> lastEncPositions = new ArrayList<>();
     public List<Integer> lastEncVels = new ArrayList<>();
-
     GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
-    public Pose2d drivePower;
+    public Pose2D currentPose;
+    Pose2D lastPose;
+    Pose2D startPose;
+    Pose2D trajectory;
+    //Pose2D startPose = odo.getPosition();  // Example of getting the FTC Pose2D
+    //Pose2d convertedStartPose = convertPose2dToPose2D(startPose);  // Convert from Road Runner Pose2d
 
-    public SampleMecanumDrive(HardwareMap hardwareMap) {
+
+
+    public TestSampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
-
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        // TODO: adjust the names of the following hardware devices to match your configuration
-        odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
-        odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
-        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-
-
+        // Initialize the odometry driver with exception handling
+        try {
+            odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+            if (odo == null) {
+                throw new NullPointerException("Odometry driver is null");
+            }
+            odo.setOffsets(-84.0, -168.0); // Tuned values
+            odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+            odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        } catch (Exception e) {
+            //telemetry.addData("Error", "Odometry Initialization Failed: " + e.getMessage());
+            //telemetry.update();
+            return; // Exit if initialization fails
+        }
 
         leftFront = hardwareMap.get(DcMotorEx.class, "frontleftDrive");
         leftRear = hardwareMap.get(DcMotorEx.class, "backleftDrive");
         rightRear = hardwareMap.get(DcMotorEx.class, "backrightDrive");
         rightFront = hardwareMap.get(DcMotorEx.class, "frontrightDrive");
 
-        motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
+        motors.add(leftFront);
+        motors.add(leftRear);
+        motors.add(rightRear);
+        motors.add(rightFront);
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -126,32 +120,25 @@ public class SampleMecanumDrive extends MecanumDrive {
         if (RUN_USING_ENCODER) {
             setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         if (RUN_USING_ENCODER && MOTOR_VELO_PID != null) {
             setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
         }
 
-        // TODO: reverse any motors using DcMotor.setDirection()
+        // Set motor directions
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftRear.setDirection(DcMotor.Direction.REVERSE);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         rightRear.setDirection(DcMotor.Direction.FORWARD);
 
-        List<Integer> lastTrackingEncPositions = new ArrayList<>();
-        List<Integer> lastTrackingEncVels = new ArrayList<>();
-
-        // TODO: if desired, use setLocalizer() to change the localization method
-        // setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels));
-        Pose2D pos = odo.getPosition();
-        String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.CM), pos.getY(DistanceUnit.CM), pos.getHeading(AngleUnit.RADIANS));
-
-
+        // Initialize trajectory runner
         trajectorySequenceRunner = new TrajectorySequenceRunner(
                 follower, HEADING_PID, batteryVoltageSensor,
-                lastEncPositions, lastEncVels, lastTrackingEncPositions, lastTrackingEncVels
+                lastEncPositions, lastEncVels, new ArrayList<>(), new ArrayList<>()
         );
+
+        currentPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
@@ -166,7 +153,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         return new TrajectoryBuilder(startPose, startHeading, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
     }
 
-    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
+    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2D startPose) {
         return new TrajectorySequenceBuilder(
                 startPose,
                 VEL_CONSTRAINT, ACCEL_CONSTRAINT,
@@ -174,9 +161,23 @@ public class SampleMecanumDrive extends MecanumDrive {
         );
     }
 
+    /*public void updateOdometry() {
+        // Retrieve encoder values
+        Pose2D newPose = odo.getPosition(); // Assuming this method returns a Pose2D
+
+        // Update the currentPose with the new pose data
+        currentPose = new Pose2D(
+                DistanceUnit.INCH,
+                newPose.getX(DistanceUnit.INCH),
+                newPose.getY(DistanceUnit.INCH),
+                AngleUnit.RADIANS,
+                newPose.getHeading(AngleUnit.RADIANS)
+        );
+    }*/
+
     public void turnAsync(double angle) {
         trajectorySequenceRunner.followTrajectorySequenceAsync(
-                trajectorySequenceBuilder(getPoseEstimate())
+                trajectorySequenceBuilder(odo.getPosition())
                         .turn(angle)
                         .build()
         );
@@ -209,15 +210,15 @@ public class SampleMecanumDrive extends MecanumDrive {
         waitForIdle();
     }
 
-    public Pose2d getLastError() {
+   /* public Pose2d getLastError() {
         return trajectorySequenceRunner.getLastPoseError();
-    }
+    }*/
 
     public void botUpdate() {
 
-        updatePoseEstimate();
+
         odo.update();
-        DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity());
+        DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity()); // Use currentPose instead of getPoseEstimate()
         if (signal != null) setDriveSignal(signal);
     }
 
@@ -255,65 +256,82 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public void setWeightedDrivePower(Pose2d drivePower) {
         //this.drivePower = drivePower;
-        Pose2d vel = drivePower;
+        //Pose2d vel = drivePower;
         odo.update();
 
-        if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY())
-                + Math.abs(drivePower.getHeading()) > 1) {
-            // re-normalize the powers according to the weights
-            double denom = VX_WEIGHT * Math.abs(drivePower.getX())
-                    + VY_WEIGHT * Math.abs(drivePower.getY())
-                    + OMEGA_WEIGHT * Math.abs(drivePower.getHeading());
+        Pose2D newPose = odo.getPosition();
+        currentPose = new Pose2D(
+                DistanceUnit.INCH,
+                newPose.getX(DistanceUnit.INCH),
+                newPose.getY(DistanceUnit.INCH),
+                AngleUnit.RADIANS,
+                newPose.getHeading(AngleUnit.RADIANS)
+        );
 
-            vel = new Pose2d(
-                    VX_WEIGHT * drivePower.getX(),
-                    VY_WEIGHT * drivePower.getY(),
-                    OMEGA_WEIGHT * drivePower.getHeading()
-            ).div(denom);
-        }
+        Pose2D vel = odo.getVelocity();
 
-        setDrivePower(vel);
         odo.update();
     }
-
     @NonNull
     @Override
     public List<Double> getWheelPositions() {
-        lastEncPositions.clear();
+        Pose2D pos = odo.getPosition(); // Get the current pose
 
+        // Create a list of doubles to store X, Y, and heading values
         List<Double> wheelPositions = new ArrayList<>();
-        for (DcMotorEx motor : motors) {
-            int position = motor.getCurrentPosition();
-            lastEncPositions.add(position);
-            wheelPositions.add(encoderTicksToInches(position));
-        }
+
+        // Add the X, Y, and heading values in their respective units
+        wheelPositions.add(pos.getX(DistanceUnit.INCH));  // X in inches
+        wheelPositions.add(pos.getY(DistanceUnit.INCH));  // Y in inches
+        wheelPositions.add(pos.getHeading(AngleUnit.RADIANS));  // Heading in radians
+
+        // Optionally, log the formatted string for debugging/telemetry
+        String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}",
+                pos.getX(DistanceUnit.INCH),
+                pos.getY(DistanceUnit.INCH),
+                pos.getHeading(AngleUnit.RADIANS));
+        telemetry.addData("Position", data);  // For telemetry display
+
+        // Return the list of positions
         return wheelPositions;
     }
 
-    @Override
-    public List<Double> getWheelVelocities() {
-        lastEncVels.clear();
+        public List<Double> getWheelVelocities() {
+            Pose2D vel = odo.getVelocity(); // Get the current velocity
 
-        List<Double> wheelVelocities = new ArrayList<>();
-        for (DcMotorEx motor : motors) {
-            int vel = (int) motor.getVelocity();
-            lastEncVels.add(vel);
-            wheelVelocities.add(encoderTicksToInches(vel));
+            // Create a list of doubles to store X, Y, and heading velocities
+            List<Double> wheelVelocities = new ArrayList<>();
+
+            // Add the X, Y, and heading velocities in their respective units
+            wheelVelocities.add(vel.getX(DistanceUnit.INCH));  // X velocity in inches/sec
+            wheelVelocities.add(vel.getY(DistanceUnit.INCH));  // Y velocity in inches/sec
+            wheelVelocities.add(vel.getHeading(AngleUnit.RADIANS));  // Heading velocity in radians/sec
+
+            // Optionally, log the formatted string for debugging/telemetry
+            String velocity = String.format(Locale.US, "{XVel: %.3f, YVel: %.3f, HVel: %.3f}",
+                    vel.getX(DistanceUnit.INCH),
+                    vel.getY(DistanceUnit.INCH),
+                    vel.getHeading(AngleUnit.RADIANS));
+            telemetry.addData("Velocity", velocity);  // For telemetry display
+
+            // Return the list of velocities
+            return wheelVelocities;
         }
-        return wheelVelocities;
-    }
 
-    @Override
-    public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftFront.setPower(v);
-        leftRear.setPower(v1);
-        rightRear.setPower(v2);
-        rightFront.setPower(v3);
-    }
+        public void setMotorPowers(double v, double v1, double v2, double v3) {
+            // Set power to the left front motor
+            leftFront.setPower(v);
+            // Set power to the left rear motor
+            leftRear.setPower(v1);
+            // Set power to the right rear motor
+            rightRear.setPower(v2);
+            // Set power to the right front motor
+            rightFront.setPower(v3);
+        }
 
     //@Override
-    public double getHeading() {
-         return odo.getHeading(AngleUnit.RADIANS);
+    public List<Double> getHeading() {
+        return Collections.singletonList(odo.getHeading(AngleUnit.RADIANS));
     }
 
 
@@ -332,8 +350,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         return new ProfileAccelerationConstraint(maxAccel);
     }
 
-    @Override
-    protected double getRawExternalHeading() {
-        return 0;
+        protected double getRawExternalHeading() {
+        return 0; // Implement your heading logic here
     }
 }

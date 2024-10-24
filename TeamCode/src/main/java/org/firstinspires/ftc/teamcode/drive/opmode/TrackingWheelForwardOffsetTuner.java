@@ -80,7 +80,7 @@ public class TrackingWheelForwardOffsetTuner extends LinearOpMode {
                 headingAccumulator += Angle.norm(heading - lastHeading);
                 lastHeading = heading;
 
-                drive.update();
+                drive.botUpdate();
             }
 
             double forwardOffset = StandardTrackingWheelLocalizer.FORWARD_OFFSET +

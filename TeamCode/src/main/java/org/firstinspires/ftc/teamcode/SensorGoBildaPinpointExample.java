@@ -22,6 +22,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -63,8 +64,9 @@ For support, contact tech@gobilda.com
 public class SensorGoBildaPinpointExample extends LinearOpMode {
 
     GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
-
     double oldTime = 0;
+    private Pose2D currentPose; // Declare Pose2D variable to hold the current pose
+
 
 
     @Override
@@ -74,6 +76,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
         // to the names assigned during the robot configuration step on the DS or RC devices.
 
         odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
+
 
         /*
         Set the odometry pod positions relative to the point that the odometry computer tracks around.
@@ -100,7 +103,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
         increase when you move the robot forward. And the Y (strafe) pod should increase when
         you move the robot to the left.
          */
-        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
 
         /*
@@ -113,6 +116,8 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
          */
         //odo.recalibrateIMU();
         odo.resetPosAndIMU();
+        Pose2D currentPose = new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.RADIANS, 0);
+
 
         telemetry.addData("Status", "Initialized");
         telemetry.addData("X offset", odo.getXOffset());
@@ -126,6 +131,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
         resetRuntime();
 
 
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
@@ -134,7 +140,18 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             from the device in a single I2C read.
              */
             odo.update();
-
+            Pose2D newPose = odo.getPosition();
+            currentPose = new Pose2D(
+                    DistanceUnit.INCH,
+                    newPose.getX(DistanceUnit.INCH),
+                    newPose.getY(DistanceUnit.INCH),
+                    AngleUnit.RADIANS,
+                    newPose.getHeading(AngleUnit.RADIANS)
+            );
+            telemetry.addData("Current Pose (Inches)", "X: %.3f, Y: %.3f, Heading: %.3f",
+                    currentPose.getX(DistanceUnit.INCH),
+                    currentPose.getY(DistanceUnit.INCH),
+                    currentPose.getHeading(AngleUnit.RADIANS));
             /*
             Optionally, you can update only the heading of the device. This takes less time to read, but will not
             pull any other data. Only the heading (which you can pull with getHeading() or in getPosition().
@@ -166,14 +183,14 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
              */
             Pose2D pos = odo.getPosition();
-            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
+            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.RADIANS));
             telemetry.addData("Position", data);
 
             /*
             gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
              */
             Pose2D vel = odo.getVelocity();
-            String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
+            String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.INCH), vel.getY(DistanceUnit.INCH), vel.getHeading(AngleUnit.RADIANS));
             telemetry.addData("Velocity", velocity);
 
 

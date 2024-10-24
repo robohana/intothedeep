@@ -19,6 +19,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAcceleration
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.acmerobotics.roadrunner.util.Angle;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.SequenceSegment;
 import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.TrajectorySegment;
 import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.TurnSegment;
@@ -32,14 +33,14 @@ import java.util.List;
 public class TrajectorySequenceBuilder {
     private final double resolution = 0.25;
 
-    private final TrajectoryVelocityConstraint baseVelConstraint;
-    private final TrajectoryAccelerationConstraint baseAccelConstraint;
+    public final TrajectoryVelocityConstraint baseVelConstraint;
+    public final TrajectoryAccelerationConstraint baseAccelConstraint;
 
-    private TrajectoryVelocityConstraint currentVelConstraint;
-    private TrajectoryAccelerationConstraint currentAccelConstraint;
+    public TrajectoryVelocityConstraint currentVelConstraint;
+    public TrajectoryAccelerationConstraint currentAccelConstraint;
 
-    private final double baseTurnConstraintMaxAngVel;
-    private final double baseTurnConstraintMaxAngAccel;
+    public final double baseTurnConstraintMaxAngVel;
+    public final double baseTurnConstraintMaxAngAccel;
 
     private double currentTurnConstraintMaxAngVel;
     private double currentTurnConstraintMaxAngAccel;
@@ -66,7 +67,7 @@ public class TrajectorySequenceBuilder {
     private double lastDisplacementTraj;
 
     public TrajectorySequenceBuilder(
-            Pose2d startPose,
+            Pose2D startPose,
             Double startTangent,
             TrajectoryVelocityConstraint baseVelConstraint,
             TrajectoryAccelerationConstraint baseAccelConstraint,
@@ -108,7 +109,7 @@ public class TrajectorySequenceBuilder {
     }
 
     public TrajectorySequenceBuilder(
-            Pose2d startPose,
+            Pose2D startPose,
             TrajectoryVelocityConstraint baseVelConstraint,
             TrajectoryAccelerationConstraint baseAccelConstraint,
             double baseTurnConstraintMaxAngVel,
@@ -119,6 +120,9 @@ public class TrajectorySequenceBuilder {
                 baseVelConstraint, baseAccelConstraint,
                 baseTurnConstraintMaxAngVel, baseTurnConstraintMaxAngAccel
         );
+    }
+
+    public TrajectorySequenceBuilder(Pose2d startPose, TrajectoryVelocityConstraint velConstraint, TrajectoryAccelerationConstraint accelConstraint, double maxAngVel, double maxAngAccel) {
     }
 
     public TrajectorySequenceBuilder lineTo(Vector2d endPosition) {
