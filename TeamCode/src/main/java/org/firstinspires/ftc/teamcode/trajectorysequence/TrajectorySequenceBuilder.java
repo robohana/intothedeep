@@ -33,23 +33,23 @@ import java.util.List;
 public class TrajectorySequenceBuilder {
     private final double resolution = 0.25;
 
-    public final TrajectoryVelocityConstraint baseVelConstraint;
-    public final TrajectoryAccelerationConstraint baseAccelConstraint;
+    public TrajectoryVelocityConstraint baseVelConstraint = null;
+    public TrajectoryAccelerationConstraint baseAccelConstraint = null;
 
     public TrajectoryVelocityConstraint currentVelConstraint;
     public TrajectoryAccelerationConstraint currentAccelConstraint;
 
-    public final double baseTurnConstraintMaxAngVel;
-    public final double baseTurnConstraintMaxAngAccel;
+    public double baseTurnConstraintMaxAngVel = Double.parseDouble(null);
+    public double baseTurnConstraintMaxAngAccel = Double.parseDouble(null);
 
     private double currentTurnConstraintMaxAngVel;
     private double currentTurnConstraintMaxAngAccel;
 
-    private final List<SequenceSegment> sequenceSegments;
+    private List<SequenceSegment> sequenceSegments = null;
 
-    private final List<TemporalMarker> temporalMarkers;
-    private final List<DisplacementMarker> displacementMarkers;
-    private final List<SpatialMarker> spatialMarkers;
+    private List<TemporalMarker> temporalMarkers = null;
+    private List<DisplacementMarker> displacementMarkers = null;
+    private List<SpatialMarker> spatialMarkers = null;
 
     private Pose2d lastPose;
 
@@ -92,7 +92,7 @@ public class TrajectorySequenceBuilder {
         displacementMarkers = new ArrayList<>();
         spatialMarkers = new ArrayList<>();
 
-        lastPose = startPose;
+        //lastPose = startPose;
 
         tangentOffset = 0.0;
 

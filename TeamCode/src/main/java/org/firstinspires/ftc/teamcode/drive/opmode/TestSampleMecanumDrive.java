@@ -71,6 +71,15 @@ public class TestSampleMecanumDrive extends MecanumDrive {
     //Pose2D startPose = odo.getPosition();  // Example of getting the FTC Pose2D
     //Pose2d convertedStartPose = convertPose2dToPose2D(startPose);  // Convert from Road Runner Pose2d
 
+    private Pose2d convertPose2DToPose2d(Pose2D startPose) {
+        // Extract the x, y, and heading values from the startPose
+        double x = startPose.getX(DistanceUnit.INCH);   // Use your preferred DistanceUnit, like INCH or MM
+        double y = startPose.getY(DistanceUnit.INCH);   // Use INCH, MM, etc., depending on your needs
+        double heading = startPose.getHeading(AngleUnit.RADIANS);  // Road Runner uses RADIANS for angles
+
+        // Return a new Pose2d object using the extracted values
+        return new Pose2d(x, y, heading);
+    }
 
 
     public TestSampleMecanumDrive(HardwareMap hardwareMap) {
@@ -194,6 +203,10 @@ public class TestSampleMecanumDrive extends MecanumDrive {
                         .addTrajectory(trajectory)
                         .build()
         );
+    }
+
+    private TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d start) {
+    return null;
     }
 
     public void followTrajectory(Trajectory trajectory) {
