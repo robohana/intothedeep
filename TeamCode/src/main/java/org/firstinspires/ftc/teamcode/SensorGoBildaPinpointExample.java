@@ -116,7 +116,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
          */
         //odo.recalibrateIMU();
         odo.resetPosAndIMU();
-        Pose2D currentPose = new Pose2D(DistanceUnit.MM, 0, 0, AngleUnit.RADIANS, 0);
+        Pose2D currentPose = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
 
 
         telemetry.addData("Status", "Initialized");
@@ -140,7 +140,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             from the device in a single I2C read.
              */
             odo.update();
-            Pose2D newPose = odo.getPosition();
+            /*Pose2D newPose = odo.getPosition();
             currentPose = new Pose2D(
                     DistanceUnit.INCH,
                     newPose.getX(DistanceUnit.INCH),
@@ -151,7 +151,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             telemetry.addData("Current Pose (Inches)", "X: %.3f, Y: %.3f, Heading: %.3f",
                     currentPose.getX(DistanceUnit.INCH),
                     currentPose.getY(DistanceUnit.INCH),
-                    currentPose.getHeading(AngleUnit.RADIANS));
+                    currentPose.getHeading(AngleUnit.RADIANS));*/
             /*
             Optionally, you can update only the heading of the device. This takes less time to read, but will not
             pull any other data. Only the heading (which you can pull with getHeading() or in getPosition().
@@ -183,14 +183,16 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
              */
             Pose2D pos = odo.getPosition();
-            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.RADIANS));
+            String data = String.format(Locale.US, "{X: %.2f, Y: %.2f, H: %.2f}", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.RADIANS));
             telemetry.addData("Position", data);
+            double xPosition = odo.getPosition().getX(DistanceUnit.INCH);
+            telemetry.addData("X Position (INCH)", Math.abs(xPosition));
 
             /*
             gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
              */
             Pose2D vel = odo.getVelocity();
-            String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.INCH), vel.getY(DistanceUnit.INCH), vel.getHeading(AngleUnit.RADIANS));
+            String velocity = String.format(Locale.US,"{XVel: %.2f, YVel: %.2f, HVel: %.2f}", vel.getX(DistanceUnit.INCH), vel.getY(DistanceUnit.INCH), vel.getHeading(AngleUnit.RADIANS));
             telemetry.addData("Velocity", velocity);
 
 
