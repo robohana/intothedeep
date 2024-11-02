@@ -33,23 +33,23 @@ import java.util.List;
 public class TrajectorySequenceBuilder {
     private final double resolution = 0.25;
 
-    public TrajectoryVelocityConstraint baseVelConstraint = null;
-    public TrajectoryAccelerationConstraint baseAccelConstraint = null;
+    public TrajectoryVelocityConstraint baseVelConstraint;
+    public TrajectoryAccelerationConstraint baseAccelConstraint;
 
     public TrajectoryVelocityConstraint currentVelConstraint;
     public TrajectoryAccelerationConstraint currentAccelConstraint;
 
-    public double baseTurnConstraintMaxAngVel = Double.parseDouble(null);
-    public double baseTurnConstraintMaxAngAccel = Double.parseDouble(null);
+    private final double baseTurnConstraintMaxAngVel;
+    private final double baseTurnConstraintMaxAngAccel;
 
     private double currentTurnConstraintMaxAngVel;
     private double currentTurnConstraintMaxAngAccel;
 
-    private List<SequenceSegment> sequenceSegments = null;
+    private final List<SequenceSegment> sequenceSegments;
 
-    private List<TemporalMarker> temporalMarkers = null;
-    private List<DisplacementMarker> displacementMarkers = null;
-    private List<SpatialMarker> spatialMarkers = null;
+    private final List<TemporalMarker> temporalMarkers;
+    private final List<DisplacementMarker> displacementMarkers;
+    private final List<SpatialMarker> spatialMarkers;
 
     private Pose2d lastPose;
 
@@ -67,7 +67,7 @@ public class TrajectorySequenceBuilder {
     private double lastDisplacementTraj;
 
     public TrajectorySequenceBuilder(
-            Pose2D startPose,
+            Pose2d startPose,
             Double startTangent,
             TrajectoryVelocityConstraint baseVelConstraint,
             TrajectoryAccelerationConstraint baseAccelConstraint,
@@ -92,7 +92,7 @@ public class TrajectorySequenceBuilder {
         displacementMarkers = new ArrayList<>();
         spatialMarkers = new ArrayList<>();
 
-        //lastPose = startPose;
+        lastPose = startPose;
 
         tangentOffset = 0.0;
 
@@ -109,7 +109,7 @@ public class TrajectorySequenceBuilder {
     }
 
     public TrajectorySequenceBuilder(
-            Pose2D startPose,
+            Pose2d startPose,
             TrajectoryVelocityConstraint baseVelConstraint,
             TrajectoryAccelerationConstraint baseAccelConstraint,
             double baseTurnConstraintMaxAngVel,
@@ -120,9 +120,6 @@ public class TrajectorySequenceBuilder {
                 baseVelConstraint, baseAccelConstraint,
                 baseTurnConstraintMaxAngVel, baseTurnConstraintMaxAngAccel
         );
-    }
-
-    public TrajectorySequenceBuilder(Pose2d startPose, TrajectoryVelocityConstraint velConstraint, TrajectoryAccelerationConstraint accelConstraint, double maxAngVel, double maxAngAccel) {
     }
 
     public TrajectorySequenceBuilder lineTo(Vector2d endPosition) {

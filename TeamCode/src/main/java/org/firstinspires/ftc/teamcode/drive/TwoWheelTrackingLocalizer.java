@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.localization.TwoTrackingWheelLocalizer;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.util.Encoder;
 
 import java.util.Arrays;
@@ -34,6 +35,8 @@ import java.util.List;
  *
  */
 public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
+    //GoBildaPinpointDriver odo;
+
     public static double TICKS_PER_REV = 2000;
     public static double WHEEL_RADIUS = 0.63; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
@@ -62,10 +65,13 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
 
         this.drive = drive;
 
-        parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "parallelEncoder"));
-        perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "perpendicularEncoder"));
+        parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BR"));
+        perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FR"));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
+        //odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        perpendicularEncoder.setDirection(Encoder.Direction.REVERSE);
+
     }
 
     public static double encoderTicksToInches(double ticks) {
@@ -74,7 +80,7 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
 
     @Override
     public double getHeading() {
-        return drive.odo.getYawScalar();
+        return drive.getRawExternalHeading();
     }
 
     @Override

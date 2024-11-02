@@ -23,6 +23,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -59,7 +60,7 @@ For support, contact tech@gobilda.com
  */
 
 @TeleOp(name="goBILDA® PinPoint Odometry Example", group="Linear OpMode")
-//@Disabled
+@Disabled
 
 public class SensorGoBildaPinpointExample extends LinearOpMode {
 
@@ -86,7 +87,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
         the tracking point the Y (strafe) odometry pod is. forward of center is a positive number,
         backwards is a negative number.
          */
-        odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
+        odo.setOffsets(-3.3, -6.6); //these are tuned for 3110-0002-0001 Product Insight #1
 
         /*
         Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either

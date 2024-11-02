@@ -17,10 +17,12 @@ import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -28,20 +30,15 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceRunner;
 import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
 import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_ACCEL;
@@ -79,14 +76,14 @@ public class SampleMecanumDrive extends MecanumDrive {
     public DcMotorEx leftFront, leftRear, rightRear, rightFront;
     public List<DcMotorEx> motors;
 
-    //private IMU imu;
+    private IMU imu;
     public VoltageSensor batteryVoltageSensor;
 
     public List<Integer> lastEncPositions = new ArrayList<>();
     public List<Integer> lastEncVels = new ArrayList<>();
 
-    GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
-    public Pose2d drivePower;
+    //GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
+    //public Pose2d drivePower;
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
@@ -103,17 +100,21 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
         // TODO: adjust the names of the following hardware devices to match your configuration
-        odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+        /*odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
         odo.setOffsets(-84.0, -168.0); //these are tuned for 3110-0002-0001 Product Insight #1
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        */
+        /*imu = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
+        imu.initialize(parameters);*/
 
 
-
-        leftFront = hardwareMap.get(DcMotorEx.class, "frontleftDrive");
-        leftRear = hardwareMap.get(DcMotorEx.class, "backleftDrive");
-        rightRear = hardwareMap.get(DcMotorEx.class, "backrightDrive");
-        rightFront = hardwareMap.get(DcMotorEx.class, "frontrightDrive");
+        leftFront = hardwareMap.get(DcMotorEx.class, "FL");
+        leftRear = hardwareMap.get(DcMotorEx.class, "BL");
+        rightRear = hardwareMap.get(DcMotorEx.class, "BR");
+        rightFront = hardwareMap.get(DcMotorEx.class, "FR");
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
@@ -144,8 +145,16 @@ public class SampleMecanumDrive extends MecanumDrive {
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels));
-        Pose2D pos = odo.getPosition();
+        /*Pose2D pos = odo.getPosition();
         String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.CM), pos.getY(DistanceUnit.CM), pos.getHeading(AngleUnit.RADIANS));
+         */
+        setLocalizer(new TwoWheelTrackingLocalizer(hardwareMap, this));
+
+
+        imu = hardwareMap.get(IMU.class, "imu");
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        //boolean initialize = imu.initialize(parameters);
 
 
         trajectorySequenceRunner = new TrajectorySequenceRunner(
@@ -213,17 +222,15 @@ public class SampleMecanumDrive extends MecanumDrive {
         return trajectorySequenceRunner.getLastPoseError();
     }
 
-    public void botUpdate() {
-
+    public void update() {
         updatePoseEstimate();
-        odo.update();
         DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity());
         if (signal != null) setDriveSignal(signal);
     }
 
     public void waitForIdle() {
         while (!Thread.currentThread().isInterrupted() && isBusy())
-            botUpdate();
+            update();
     }
 
     public boolean isBusy() {
@@ -254,9 +261,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void setWeightedDrivePower(Pose2d drivePower) {
-        //this.drivePower = drivePower;
         Pose2d vel = drivePower;
-        odo.update();
 
         if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY())
                 + Math.abs(drivePower.getHeading()) > 1) {
@@ -273,7 +278,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
         setDrivePower(vel);
-        odo.update();
+
     }
 
     @NonNull
@@ -311,15 +316,16 @@ public class SampleMecanumDrive extends MecanumDrive {
         rightFront.setPower(v3);
     }
 
-    //@Override
-    public double getHeading() {
-         return odo.getHeading(AngleUnit.RADIANS);
+    @Override
+    public double getRawExternalHeading() {
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
 
+    @Override
+    public Double getExternalHeadingVelocity() {
+        return (double) imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
+    }
 
-    /*public Double getExternalHeadingVelocity() {
-        return (double) odo.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
-    }*/
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
         return new MinVelocityConstraint(Arrays.asList(
@@ -332,8 +338,5 @@ public class SampleMecanumDrive extends MecanumDrive {
         return new ProfileAccelerationConstraint(maxAccel);
     }
 
-    @Override
-    protected double getRawExternalHeading() {
-        return 0;
-    }
+
 }

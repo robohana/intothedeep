@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.GoBildaPinpointDriver;
 
 @TeleOp(name = "Odometry Test", group = "Test")
+@Disabled
 public class OdometryTest extends LinearOpMode{
         // Declare Odometry Driver
         GoBildaPinpointDriver odo;
@@ -36,10 +38,10 @@ public class OdometryTest extends LinearOpMode{
                     odo.update();
                     try {
                         // Get the X-coordinate from the odometry
-                        double xPosition = odo.getPosition().getX(DistanceUnit.CM);
+                        double xPosition = odo.getPosition().getX(DistanceUnit.MM);
 
                         // Send the X-coordinate value to telemetry
-                        telemetry.addData("X Position (cm)", xPosition);
+                        telemetry.addData("X Position (mm)", xPosition);
 
                     } catch (Exception e) {
                         telemetry.addData("Error", "Failed to get X Position: " + e.getMessage());
