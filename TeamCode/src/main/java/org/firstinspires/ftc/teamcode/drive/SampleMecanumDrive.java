@@ -105,10 +105,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         */
-        /*imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
-        imu.initialize(parameters);*/
+
 
 
         leftFront = hardwareMap.get(DcMotorEx.class, "FL");
@@ -121,7 +118,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
             motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
-            motor.setMotorType(motorConfigurationType);
+            motor.setMotorType(motorConfigurationType);//interpreted
         }
 
         if (RUN_USING_ENCODER) {
@@ -152,9 +149,18 @@ public class SampleMecanumDrive extends MecanumDrive {
 
 
         imu = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                )
+        );
+        imu.initialize(parameters);
+
+        /*imu = hardwareMap.get(IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        //boolean initialize = imu.initialize(parameters);
+        //boolean initialize = imu.initialize(parameters);*/
 
 
         trajectorySequenceRunner = new TrajectorySequenceRunner(

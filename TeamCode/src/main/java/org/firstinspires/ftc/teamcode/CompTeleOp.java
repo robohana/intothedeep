@@ -1,61 +1,33 @@
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 //import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotor;
 //import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
 //import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-
-
-/*
-import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.Score;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-*/
-
-
-
 @TeleOp(name="CompTeleOp")
 public class CompTeleOp extends LinearOpMode {
-    //decale all public guys
+    //decale all public guys - LC
     public DcMotor backleftDrive;
     public DcMotor backrightDrive;
     public DcMotor frontleftDrive;
     public DcMotor frontrightDrive;
 
-    public CRServo leftBrush;
-    public CRServo rightBrush;
-    public Servo intakeWrist;
-    public DcMotor horizontalviperSlide;
-
     public DcMotor leftviperSlide;
     public DcMotor rightviperSlide;
+    public DcMotor drawbridge;
     public CRServo claw;
 
-
-    public Servo dumpAngle;
-    public DcMotor verticalviperSlide;
-
-    double vvSPower;
-    //double vSPower
-    //double hvSPower;
     double max;
-    public TouchSensor vvStouchSensor;
-
 
     @Override
     public void runOpMode() throws InterruptedException {
-
-        double t = getRuntime();
-
 
         //handware map for Drivetrain - LC
         backleftDrive = hardwareMap.get(DcMotor.class, "backleftDrive");
@@ -63,18 +35,8 @@ public class CompTeleOp extends LinearOpMode {
         frontleftDrive = hardwareMap.get(DcMotor.class, "frontleftDrive");
         frontrightDrive = hardwareMap.get(DcMotor.class, "frontrightDrive");
 
-        //hardware map for Intake - LC
-        leftBrush = hardwareMap.get(CRServo.class, "leftBrush");
-        rightBrush = hardwareMap.get(CRServo.class, "rightBrush");
-        intakeWrist = hardwareMap.get(Servo.class, "intakeWrist");
-        horizontalviperSlide = hardwareMap.get(DcMotor.class, "horizontalviperSlide");
-
-        //hardware map for Score - LC
-        dumpAngle = hardwareMap.get(Servo.class, "dumpAngle");
-        verticalviperSlide = hardwareMap.get(DcMotor.class, "verticalviperSlide");
-        //DcMotor encodervvS = hardwareMap.dcMotor.get("verticalviperSlide");
-        vvStouchSensor = hardwareMap.get(TouchSensor.class, "vvStouchSensor");
-
+        //hardware map for butter gripper tower of terror - LC
+        drawbridge = hardwareMap.get(DcMotor.class, "drawbridge");
         leftviperSlide = hardwareMap.get(DcMotor.class, "leftviperSlide");
         rightviperSlide = hardwareMap.get(DcMotor.class, "rightviperSlide");
         claw = hardwareMap.get(CRServo.class, "claw");
@@ -86,8 +48,11 @@ public class CompTeleOp extends LinearOpMode {
         frontrightDrive.setDirection(DcMotor.Direction.FORWARD);
         backrightDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        //sets the directions of the two parallel viper slides in opposite directions so they will move up and down in unison. - LC
         leftviperSlide.setDirection(DcMotor.Direction.FORWARD);
         rightviperSlide.setDirection(DcMotor.Direction.REVERSE);
+        drawbridge.setDirection(DcMotor.Direction.FORWARD);
+
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -95,21 +60,27 @@ public class CompTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
             if(opModeIsActive()) {
-                if (gamepad1.dpad_left) {         // go up - LC
+                /* //set's it so that the butter gripper will be contantly closed when you are not
+                holding the button. it is a continuous servo just is really set up like a regular servo
+                with how zero is the open position and 1 is the closed butter position - LC*/
+                if (gamepad2.dpad_right) {         // go max open position - LC
                     claw.setPower(0);
-                } else {
+                } else {                          // go to closed position
                     claw.setPower(1);
-
+                }
+                if (gamepad2.dpad_up) {         // go max open position - LC
+                    drawbridge.setPower(1);
+                }else if (gamepad2.dpad_down) {
+                    drawbridge.setPower(-1);
+                }else {                          // go to closed position
+                    drawbridge.setPower(0);
                 }
             }
 
+            //sets the power that goes to the viper slides to be relyant on gamepad 2 (opertator) left stick when you move it in the y direction - LC
             double power = -gamepad2.left_stick_y;
             leftviperSlide.setPower(power);
             rightviperSlide.setPower(power);
-
-
-            //Drivetrain();
-            //Score();
 
             //Controlls for gamepad 1 (driver) - LC
             double axial   = -gamepad1.left_stick_y;  // Forward
@@ -150,17 +121,8 @@ public class CompTeleOp extends LinearOpMode {
             backleftDrive.setPower(leftbackPower);
             backrightDrive.setPower(rightbackPower);
 
-            // Get the current position of the vvS - LC
-            //double position = encodervvS.getCurrentPosition();
-
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftfrontPower, rightfrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftbackPower, rightbackPower);
-            //telemetry.addData("vvS Touch Sensor", vvStouchSensor.getValue());
-            //telemetry.addData ("vvS Power", vvSPower);
-            //telemetry.addData ("hvs Power", hvSPower);
-            //telemetry.addData ("Encoder Position", position);
-            telemetry.addData("t", t);
-            telemetry.addData("rt-t", getRuntime()-t);
             telemetry.update();
 
         }
