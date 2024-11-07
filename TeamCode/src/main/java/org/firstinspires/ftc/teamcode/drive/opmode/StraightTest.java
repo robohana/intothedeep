@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 /*
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 @Config
 @Autonomous(group = "drive")
 public class StraightTest extends LinearOpMode {
+    public static DistanceUnit DISTANCE_UNIT = DistanceUnit.INCH;
     public static double DISTANCE = 60; // in
 
     @Override
@@ -24,6 +26,14 @@ public class StraightTest extends LinearOpMode {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+
+        // Debug print the distance and the unit being used
+        telemetry.addData("DISTANCE_UNIT", DISTANCE_UNIT.toString());
+        telemetry.addData("DISTANCE", DISTANCE);
+        telemetry.update();
+
+        //double distanceInDesiredUnit = convertToDistanceUnit(DISTANCE);
+
 
         Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
                 .forward(DISTANCE)
@@ -43,4 +53,17 @@ public class StraightTest extends LinearOpMode {
 
         while (!isStopRequested() && opModeIsActive()) ;
     }
+    /**
+     * Converts the distance from the specified unit to the desired unit (INCH or CM).
+     * @param distance The distance to convert
+     * @return The converted distance in the desired unit.
+     */
+    /*private double convertToDistanceUnit(double distance) {
+        if (DISTANCE_UNIT == DistanceUnit.CM) {
+            // Convert from inches to centimeters
+            return distance * 2.54;
+        }
+        // Default is inches, so return the original value.
+        return distance;
+    }*/
 }

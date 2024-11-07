@@ -21,7 +21,6 @@ public class CompTeleOp extends LinearOpMode {
 
     public DcMotor leftviperSlide;
     public DcMotor rightviperSlide;
-    public DcMotor drawbridge;
     public CRServo claw;
 
     double max;
@@ -36,7 +35,6 @@ public class CompTeleOp extends LinearOpMode {
         frontrightDrive = hardwareMap.get(DcMotor.class, "frontrightDrive");
 
         //hardware map for butter gripper tower of terror - LC
-        drawbridge = hardwareMap.get(DcMotor.class, "drawbridge");
         leftviperSlide = hardwareMap.get(DcMotor.class, "leftviperSlide");
         rightviperSlide = hardwareMap.get(DcMotor.class, "rightviperSlide");
         claw = hardwareMap.get(CRServo.class, "claw");
@@ -51,8 +49,6 @@ public class CompTeleOp extends LinearOpMode {
         //sets the directions of the two parallel viper slides in opposite directions so they will move up and down in unison. - LC
         leftviperSlide.setDirection(DcMotor.Direction.FORWARD);
         rightviperSlide.setDirection(DcMotor.Direction.REVERSE);
-        drawbridge.setDirection(DcMotor.Direction.FORWARD);
-
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -63,17 +59,11 @@ public class CompTeleOp extends LinearOpMode {
                 /* //set's it so that the butter gripper will be contantly closed when you are not
                 holding the button. it is a continuous servo just is really set up like a regular servo
                 with how zero is the open position and 1 is the closed butter position - LC*/
-                if (gamepad2.dpad_right) {         // go max open position - LC
-                    claw.setPower(0);
+
+                if (gamepad2.right_bumper) {         // go max open position - LC
+                    claw.setPower(-1);
                 } else {                          // go to closed position
                     claw.setPower(1);
-                }
-                if (gamepad2.dpad_up) {         // go max open position - LC
-                    drawbridge.setPower(1);
-                }else if (gamepad2.dpad_down) {
-                    drawbridge.setPower(-1);
-                }else {                          // go to closed position
-                    drawbridge.setPower(0);
                 }
             }
 

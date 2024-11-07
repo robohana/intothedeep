@@ -4,6 +4,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 /*
  * Constants shared between multiple drive types.
  *
@@ -48,6 +50,13 @@ public class DriveConstants {
     public static double GEAR_RATIO = 13.7 / 1.0; // output (wheel) speed / input (motor) speed
     public static double TRACK_WIDTH = 16.5; // in
 
+
+    /*
+     * Distance Unit
+     * You can choose between different units (e.g., INCHES, CENTIMETERS) based on your robot's configuration.
+     */
+    public static DistanceUnit DISTANCE_UNIT = DistanceUnit.INCH;
+
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
      * the built-in velocity PID, *these values are fine as is*. However, if you do not have drive
@@ -76,7 +85,7 @@ public class DriveConstants {
     public static RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR =
             RevHubOrientationOnRobot.LogoFacingDirection.UP;
     public static RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR =
-            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+            RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
 
     public static double encoderTicksToInches(double ticks) {
