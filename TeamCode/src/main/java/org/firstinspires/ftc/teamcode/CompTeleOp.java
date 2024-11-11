@@ -22,6 +22,7 @@ public class CompTeleOp extends LinearOpMode {
     public DcMotor leftviperSlide;
     public DcMotor rightviperSlide;
     public CRServo claw;
+    double vSPower;
 
     double max;
 
@@ -56,9 +57,9 @@ public class CompTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
             if(opModeIsActive()) {
-                /* //set's it so that the butter gripper will be contantly closed when you are not
+                /* set's it so that the butter gripper will be contantly closed when you are not
                 holding the button. it is a continuous servo just is really set up like a regular servo
-                with how zero is the open position and 1 is the closed butter position - LC*/
+                with how zero is the open position and 1 is the closed butter position - LC  */
 
                 if (gamepad2.right_bumper) {         // go max open position - LC
                     claw.setPower(-1);
@@ -68,9 +69,9 @@ public class CompTeleOp extends LinearOpMode {
             }
 
             //sets the power that goes to the viper slides to be relyant on gamepad 2 (opertator) left stick when you move it in the y direction - LC
-            double power = -gamepad2.left_stick_y;
-            leftviperSlide.setPower(power);
-            rightviperSlide.setPower(power);
+            double vSPower = -gamepad2.left_stick_y;
+            leftviperSlide.setPower(vSPower);
+            rightviperSlide.setPower(vSPower);
 
             //Controlls for gamepad 1 (driver) - LC
             double axial   = -gamepad1.left_stick_y;  // Forward
@@ -113,6 +114,7 @@ public class CompTeleOp extends LinearOpMode {
 
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftfrontPower, rightfrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftbackPower, rightbackPower);
+            telemetry.addData("ViperSlide Power","%4.2f", vSPower);
             telemetry.update();
 
         }

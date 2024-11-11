@@ -11,21 +11,44 @@ public class Omni extends LinearOpMode {
     public DcMotor frontleftDrive;
     public DcMotor frontrightDrive;
 
+    public DcMotor VS;
+
     double max;
 
     public void runOpMode() throws InterruptedException {
+
+        int zrev = 0;
+        int srev = 50000;
+
         backleftDrive = hardwareMap.get(DcMotor .class, "BL");
         backrightDrive = hardwareMap.get(DcMotor.class, "BR");
         frontleftDrive = hardwareMap.get(DcMotor.class, "FL");
         frontrightDrive = hardwareMap.get(DcMotor.class, "FR");
+        VS = hardwareMap.get(DcMotor.class, "VS");
+        DcMotor ENVS = hardwareMap.dcMotor.get("VS");
 
         frontleftDrive.setDirection(DcMotor.Direction.REVERSE);
         backleftDrive.setDirection(DcMotor.Direction.REVERSE);
         frontrightDrive.setDirection(DcMotor.Direction.FORWARD);
         backrightDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        ENVS.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        ENVS.setTargetPosition(zrev);
+        ENVS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        ENVS.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         waitForStart();
         while (opModeIsActive()) {
+
+            int VSposition = ENVS.getCurrentPosition();
+            VSposition = clamp(VSposition, zrev, srev);
+
+            double power = -gamepad2.left_stick_y;
+            if ((VSposition <= zrev && power < 0) || (VSposition >= srev && power > 0)) {
+                power = 0;  // Stop the motor if it reaches the limit in either direction - LC
+            }
+            VS.setPower(power);
+
             double axial   = -gamepad1.left_stick_y;  // Forward
             double lateral =  gamepad1.left_stick_x;  //strafe
             double yaw     =  gamepad1.right_stick_x; //spin turn
@@ -64,10 +87,28 @@ public class Omni extends LinearOpMode {
             backleftDrive.setPower(leftbackPower);
             backrightDrive.setPower(rightbackPower);
 
+            /*if (gamepad2.a){
+                ENVS.setTargetPosition(srev);
+                ENVS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                ENVS.setPower(0.1);
+            } else if (gamepad2.b){
+                ENVS.setTargetPosition(zrev);
+                ENVS.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                ENVS.setPower(0.1);
+            } else{
+                ENVS.setPower(0);
+            }*/
+
+
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftfrontPower, rightfrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftbackPower, rightbackPower);
+            telemetry.addData("En VS Position", VSposition);
             telemetry.update();
         }
+    }
+    // Clamping function to keep encoder within the desired range - LC
+    private int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(value, max));
     }
 
 }
