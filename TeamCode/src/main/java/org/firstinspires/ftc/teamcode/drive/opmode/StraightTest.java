@@ -12,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+import java.util.List;
+
 /*
  * This is a simple routine to test translational drive capabilities.
  */
@@ -49,6 +51,9 @@ public class StraightTest extends LinearOpMode {
         telemetry.addData("finalX", poseEstimate.getX());
         telemetry.addData("finalY", poseEstimate.getY());
         telemetry.addData("finalHeading", poseEstimate.getHeading());
+        //List<Double> currentwheelposition = drive.getWheelPositions();
+        //telemetry.addData("wheel Pos", drive.getWheelPositions());
+
         telemetry.update();
 
         while (!isStopRequested() && opModeIsActive()) ;

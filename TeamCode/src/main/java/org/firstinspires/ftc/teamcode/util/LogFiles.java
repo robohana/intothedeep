@@ -49,11 +49,11 @@ public final class LogFiles {
 
         public double ticksPerRev = DriveConstants.TICKS_PER_REV;
         public double maxRpm = DriveConstants.MAX_RPM;
-        public boolean runUsingEncoder = DriveConstants.RUN_USING_ENCODER;
-        public double motorP = DriveConstants.MOTOR_VELO_PID.p;
-        public double motorI = DriveConstants.MOTOR_VELO_PID.i;
-        public double motorD = DriveConstants.MOTOR_VELO_PID.d;
-        public double motorF = DriveConstants.MOTOR_VELO_PID.f;
+        //public boolean runUsingEncoder = DriveConstants.RUN_USING_ENCODER;
+       // public double motorP = DriveConstants.MOTOR_VELO_PID.p;
+        //public double motorI = DriveConstants.MOTOR_VELO_PID.i;
+        //public double motorD = DriveConstants.MOTOR_VELO_PID.d;
+        //public double motorF = DriveConstants.MOTOR_VELO_PID.f;
         public double wheelRadius = DriveConstants.WHEEL_RADIUS;
         public double gearRatio = DriveConstants.GEAR_RATIO;
         public double trackWidth = DriveConstants.TRACK_WIDTH;
