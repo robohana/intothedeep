@@ -23,8 +23,8 @@ public class DriveConstants {
     /*
      * These are motor constants that should be listed online for your motors.
      */
-    public static final double TICKS_PER_REV = 384.5;
-    public static final double MAX_RPM = 435;
+    public static final double TICKS_PER_REV = 537.7;
+    public static final double MAX_RPM = 312;
 
     /*
      * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.
@@ -46,8 +46,8 @@ public class DriveConstants {
      * angular distances although most angular parameters are wrapped in Math.toRadians() for
      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
-    public static double WHEEL_RADIUS = 1.9; // in
-    public static double GEAR_RATIO = 13.7 / 1.0; // output (wheel) speed / input (motor) speed
+    public static double WHEEL_RADIUS = 2.04; // in
+    public static double GEAR_RATIO = 19.2; // output (wheel) speed / input (motor) speed
     public static double TRACK_WIDTH = 16.5; // in
 
 
@@ -74,10 +74,10 @@ public class DriveConstants {
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 1185.74;
-    public static double MAX_ACCEL = 1185.74;
-    public static double MAX_ANG_VEL = Math.toRadians(45.5);
-    public static double MAX_ANG_ACCEL = Math.toRadians(182);
+    public static double MAX_VEL = 1267.58;
+    public static double MAX_ACCEL = 1287.58;
+    public static double MAX_ANG_VEL = Math.toRadians(32.74);
+    public static double MAX_ANG_ACCEL = Math.toRadians(130.96);
 
     /*
      * Adjust the orientations here to match your robot. See the FTC SDK documentation for details.

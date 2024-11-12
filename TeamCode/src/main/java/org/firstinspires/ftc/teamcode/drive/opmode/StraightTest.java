@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.TwoWheelTrackingLocalizer;
 
 import java.util.List;
 
@@ -22,12 +23,16 @@ import java.util.List;
 public class StraightTest extends LinearOpMode {
     public static DistanceUnit DISTANCE_UNIT = DistanceUnit.INCH;
     public static double DISTANCE = 60; // in
+    public SampleMecanumDrive drive;
+    public TwoWheelTrackingLocalizer track;
 
     @Override
     public void runOpMode() throws InterruptedException {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        //SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        drive = new SampleMecanumDrive(hardwareMap);
+        track = new TwoWheelTrackingLocalizer(hardwareMap, drive); // Adjust constructor parameters as needed
 
         // Debug print the distance and the unit being used
         telemetry.addData("DISTANCE_UNIT", DISTANCE_UNIT.toString());
@@ -51,9 +56,7 @@ public class StraightTest extends LinearOpMode {
         telemetry.addData("finalX", poseEstimate.getX());
         telemetry.addData("finalY", poseEstimate.getY());
         telemetry.addData("finalHeading", poseEstimate.getHeading());
-        //List<Double> currentwheelposition = drive.getWheelPositions();
-        //telemetry.addData("wheel Pos", drive.getWheelPositions());
-
+        telemetry.addData("wheel Pos", track.getWheelPositions());
         telemetry.update();
 
         while (!isStopRequested() && opModeIsActive()) ;

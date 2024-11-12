@@ -23,6 +23,7 @@ public class CompTeleOp extends LinearOpMode {
     public DcMotor rightviperSlide;
     public CRServo claw;
     double vSPower;
+    //double clawPower;
 
     double max;
 
@@ -30,10 +31,10 @@ public class CompTeleOp extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         //handware map for Drivetrain - LC
-        backleftDrive = hardwareMap.get(DcMotor.class, "backleftDrive");
-        backrightDrive = hardwareMap.get(DcMotor.class, "backrightDrive");
-        frontleftDrive = hardwareMap.get(DcMotor.class, "frontleftDrive");
-        frontrightDrive = hardwareMap.get(DcMotor.class, "frontrightDrive");
+        backleftDrive = hardwareMap.get(DcMotor.class, "BL");
+        backrightDrive = hardwareMap.get(DcMotor.class, "BR");
+        frontleftDrive = hardwareMap.get(DcMotor.class, "FL");
+        frontrightDrive = hardwareMap.get(DcMotor.class, "FR");
 
         //hardware map for butter gripper tower of terror - LC
         leftviperSlide = hardwareMap.get(DcMotor.class, "leftviperSlide");
@@ -68,6 +69,8 @@ public class CompTeleOp extends LinearOpMode {
                 }
             }
 
+
+
             //sets the power that goes to the viper slides to be relyant on gamepad 2 (opertator) left stick when you move it in the y direction - LC
             double vSPower = -gamepad2.left_stick_y;
             leftviperSlide.setPower(vSPower);
@@ -81,9 +84,9 @@ public class CompTeleOp extends LinearOpMode {
             // Combine the joystick requests for each axis-motion to determine each wheel's power. - LC
             // Set up a variable for each drive wheel to save the power level for telemetry. - LC
             double leftfrontPower  = axial + lateral + yaw;
-            double rightfrontPower = axial - lateral - yaw;
+            double rightfrontPower = axial + lateral - yaw;
             double leftbackPower   = axial - lateral + yaw;
-            double rightbackPower  = axial + lateral - yaw;
+            double rightbackPower  = axial - lateral - yaw;
 
             // Normalize the values - LC
             max = Math.max(Math.abs(leftfrontPower), Math.abs(rightfrontPower));
@@ -115,6 +118,7 @@ public class CompTeleOp extends LinearOpMode {
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftfrontPower, rightfrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftbackPower, rightbackPower);
             telemetry.addData("ViperSlide Power","%4.2f", vSPower);
+            //telemetry.addData("Claw Power","%4.2f", clawPower);
             telemetry.update();
 
         }
