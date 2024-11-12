@@ -80,9 +80,9 @@ public class CompTeleOp extends LinearOpMode {
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power. - LC
             // Set up a variable for each drive wheel to save the power level for telemetry. - LC
-            double leftfrontPower  = axial - lateral + yaw;
+            double leftfrontPower  = axial + lateral + yaw;
             double rightfrontPower = axial - lateral - yaw;
-            double leftbackPower   = axial + lateral + yaw;
+            double leftbackPower   = axial - lateral + yaw;
             double rightbackPower  = axial + lateral - yaw;
 
             // Normalize the values - LC
