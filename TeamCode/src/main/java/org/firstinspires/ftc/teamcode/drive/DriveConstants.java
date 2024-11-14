@@ -34,9 +34,9 @@ public class DriveConstants {
      * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
      * from DriveVelocityPIDTuner.
      */
-    //public static final boolean RUN_USING_ENCODER = false;
-    //public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
-            //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
+    public static final boolean RUN_USING_ENCODER = false;
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0,0,0,0);
+        //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -63,9 +63,9 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
+    public static double kV = 2 / rpmToVelocity(MAX_RPM); //0.18V is my theoretical value
     public static double kA = 0;
-    public static double kStatic = 0;
+    public static double kStatic = 12;
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -74,10 +74,10 @@ public class DriveConstants {
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 1267.58;
-    public static double MAX_ACCEL = 1287.58;
-    public static double MAX_ANG_VEL = Math.toRadians(32.74);
-    public static double MAX_ANG_ACCEL = Math.toRadians(130.96);
+    public static double MAX_VEL = 984;// 1267.58 - theoretical value
+    public static double MAX_ACCEL = 984;//1287.58 - theoretical value
+    public static double MAX_ANG_VEL = Math.toRadians(60); //32.74 - theoretical value
+    public static double MAX_ANG_ACCEL = Math.toRadians(60); //130.96 - theoretical value
 
     /*
      * Adjust the orientations here to match your robot. See the FTC SDK documentation for details.

@@ -11,6 +11,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -36,7 +37,7 @@ import java.util.List;
 @Autonomous(group = "drive")
 public class AutomaticFeedforwardTuner extends LinearOpMode {
     public static double MAX_POWER = 0.7;
-    public static double DISTANCE = 100; // in
+    public static double DISTANCE = 60; // in
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -100,7 +101,7 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
         double maxVel = rpmToVelocity(MAX_RPM);
         double finalVel = MAX_POWER * maxVel;
         double accel = (finalVel * finalVel) / (2.0 * DISTANCE);
-        double rampTime = Math.sqrt(2.0 * DISTANCE / accel);
+        double rampTime = 7 * Math.sqrt(2.0 * DISTANCE / accel);
 
         List<Double> timeSamples = new ArrayList<>();
         List<Double> positionSamples = new ArrayList<>();
@@ -142,6 +143,16 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
         }
         telemetry.addLine("Would you like to fit kA?");
         telemetry.addLine("Press (Y/Δ) for yes, (B/O) for no");
+        //telemetry.addData("Elapsed Time", elapsedTime);
+        telemetry.addData("maxvel", maxVel);
+        telemetry.addData("finalVel", finalVel);
+        telemetry.addData("accel", accel);
+        telemetry.addData("rampTime", rampTime);
+        Pose2d poseEstimate = drive.getPoseEstimate();
+        telemetry.addData("finalX", poseEstimate.getX());
+        telemetry.addData("finalY", poseEstimate.getY());
+        telemetry.addData("finalHeading", poseEstimate.getHeading());
+        telemetry.update();
         telemetry.update();
 
         boolean fitAccelFF = false;
@@ -190,6 +201,11 @@ public class AutomaticFeedforwardTuner extends LinearOpMode {
             startTime = clock.seconds();
             while (!isStopRequested()) {
                 double elapsedTime = clock.seconds() - startTime;
+                telemetry.addData("maxvel", maxVel);
+                telemetry.addData("finalVel", finalVel);
+                telemetry.addData("accel", accel);
+                telemetry.addData("maxPowerTime", maxPowerTime);
+                telemetry.update();
                 if (elapsedTime > maxPowerTime) {
                     break;
                 }

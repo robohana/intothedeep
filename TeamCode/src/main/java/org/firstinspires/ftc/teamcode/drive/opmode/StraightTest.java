@@ -1,10 +1,16 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_VEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -13,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.TwoWheelTrackingLocalizer;
 
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -22,9 +29,12 @@ import java.util.List;
 @Autonomous(group = "drive")
 public class StraightTest extends LinearOpMode {
     public static DistanceUnit DISTANCE_UNIT = DistanceUnit.INCH;
-    public static double DISTANCE = 60; // in
+    public static double DISTANCE = 40; // in
     public SampleMecanumDrive drive;
     public TwoWheelTrackingLocalizer track;
+
+    public static double MAX_VEL = 1000; // max velocity in inches per second
+    public static double MAX_ACCEL = 1000;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -42,8 +52,19 @@ public class StraightTest extends LinearOpMode {
         //double distanceInDesiredUnit = convertToDistanceUnit(DISTANCE);
 
 
-        Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
+        /*Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
                 .forward(DISTANCE)
+                .build();*/
+
+        Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
+                .forward(DISTANCE,
+                        new MinVelocityConstraint(Arrays.asList(
+                                new MinVelocityConstraint(Arrays.asList(
+                                        drive.getVelocityConstraint(MAX_VEL, MAX_ACCEL, TRACK_WIDTH)
+                                ))
+                        )),
+                        new ProfileAccelerationConstraint(MAX_ACCEL)
+                )
                 .build();
 
         waitForStart();
@@ -56,22 +77,12 @@ public class StraightTest extends LinearOpMode {
         telemetry.addData("finalX", poseEstimate.getX());
         telemetry.addData("finalY", poseEstimate.getY());
         telemetry.addData("finalHeading", poseEstimate.getHeading());
-        telemetry.addData("wheel Pos", track.getWheelPositions());
+        telemetry.addData("Parallel Encoder Position", track.parallelEncoder.getCurrentPosition());
+        telemetry.addData("Perpendicular Encoder Position", track. perpendicularEncoder.getCurrentPosition());
+        telemetry.addData("Wheel Positions (inches)", track.getWheelPositions());
         telemetry.update();
 
         while (!isStopRequested() && opModeIsActive()) ;
     }
-    /**
-     * Converts the distance from the specified unit to the desired unit (INCH or CM).
-     * @param distance The distance to convert
-     * @return The converted distance in the desired unit.
-     */
-    /*private double convertToDistanceUnit(double distance) {
-        if (DISTANCE_UNIT == DistanceUnit.CM) {
-            // Convert from inches to centimeters
-            return distance * 2.54;
-        }
-        // Default is inches, so return the original value.
-        return distance;
-    }*/
+
 }
