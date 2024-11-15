@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 //import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.Servo;
 //import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
 //import org.firstinspires.ftc.robotcore.external.Telemetry;
-import com.qualcomm.robotcore.hardware.TouchSensor;
+
 
 @TeleOp(name="CompTeleOp")
 public class CompTeleOp extends LinearOpMode {
@@ -22,8 +19,13 @@ public class CompTeleOp extends LinearOpMode {
     public DcMotor leftviperSlide;
     public DcMotor rightviperSlide;
     public CRServo claw;
-    double vSPower;
-    //double clawPower;
+    //double vSPower;
+
+    public DcMotor hiJoint;
+    public DcMotor hiExtend;
+    public CRServo intakeRoller;
+
+    //double JointPower;
 
     double max;
 
@@ -41,6 +43,11 @@ public class CompTeleOp extends LinearOpMode {
         rightviperSlide = hardwareMap.get(DcMotor.class, "rightviperSlide");
         claw = hardwareMap.get(CRServo.class, "claw");
 
+        //hardware map for butter gripper tower of terror - LC
+        hiJoint = hardwareMap.get(DcMotor.class, "hiJoint");
+        hiExtend = hardwareMap.get(DcMotor.class, "hiExtend");
+        intakeRoller = hardwareMap.get(CRServo.class, "intakeRoller");
+
 
         //this sets the direction the motor will spin for the drive wheels - LC
         frontleftDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -52,29 +59,25 @@ public class CompTeleOp extends LinearOpMode {
         leftviperSlide.setDirection(DcMotor.Direction.FORWARD);
         rightviperSlide.setDirection(DcMotor.Direction.REVERSE);
 
+        //sets the directions of the two parallel viper slides in opposite directions so they will move up and down in unison. - LC
+        hiJoint.setDirection(DcMotor.Direction.FORWARD);
+        hiExtend.setDirection(DcMotor.Direction.FORWARD);
+
+
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         waitForStart();
 
         while (opModeIsActive()) {
-            if(opModeIsActive()) {
-                /* set's it so that the butter gripper will be contantly closed when you are not
-                holding the button. it is a continuous servo just is really set up like a regular servo
-                with how zero is the open position and 1 is the closed butter position - LC  */
-
-                if (gamepad2.right_bumper) {         // go max open position - LC
-                    claw.setPower(-1);
-                } else {                          // go to closed position
-                    claw.setPower(1);
-                }
-            }
-
-
 
             //sets the power that goes to the viper slides to be relyant on gamepad 2 (opertator) left stick when you move it in the y direction - LC
             double vSPower = -gamepad2.left_stick_y;
             leftviperSlide.setPower(vSPower);
             rightviperSlide.setPower(vSPower);
+
+            //sets the power that goes to the joint on the hanger and intake to be relyant on gamepad 2 (opertator) right stick when you move it in the y direction - LC
+            double jointPower = -gamepad2.right_stick_y;
+            hiJoint.setPower(jointPower);
 
             //Controlls for gamepad 1 (driver) - LC
             double axial   = -gamepad1.left_stick_y;  // Forward
@@ -114,6 +117,33 @@ public class CompTeleOp extends LinearOpMode {
             frontrightDrive.setPower(rightfrontPower);
             backleftDrive.setPower(leftbackPower);
             backrightDrive.setPower(rightbackPower);
+
+            /* set's it so that the butter gripper will be contantly closed when you are not
+                holding the button. it is a continuous servo just is really set up like a regular servo
+                with how zero is the open position and 1 is the closed butter position - LC  */
+            if (gamepad2.right_bumper) {         // go max open position - LC
+                claw.setPower(-1);
+            } else {                          // go to closed position - LC
+                claw.setPower(1);
+            }
+
+            //set power and control of the servo for intake to the (op) triggers - LC
+            if (gamepad2.right_trigger > 0.5){
+                intakeRoller.setPower(-1);
+            } else if (gamepad2.left_trigger > 0.5) {
+                intakeRoller.setPower(1);
+            } else {
+                intakeRoller.setPower(0);
+            }
+
+            //set power and control of the motor for extendy to the (op) dpad L and R - LC
+            if (gamepad2.dpad_right){
+                hiExtend.setPower(1);
+            } else if (gamepad2.dpad_left) {
+                hiExtend.setPower(-1);
+            } else {
+                hiExtend.setPower(0);
+            }
 
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftfrontPower, rightfrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftbackPower, rightbackPower);

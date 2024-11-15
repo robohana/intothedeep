@@ -35,7 +35,7 @@ public class DriveConstants {
      * from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = false;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0,0,0,0);
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(11,0.2,0.9,0.2016);
         //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
     /*
@@ -49,14 +49,7 @@ public class DriveConstants {
     public static double WHEEL_RADIUS = 2.04; // in
     public static double GEAR_RATIO = 19.2; // output (wheel) speed / input (motor) speed
     public static double TRACK_WIDTH = 16.5; // in
-
-
-    /*
-     * Distance Unit
-     * You can choose between different units (e.g., INCHES, CENTIMETERS) based on your robot's configuration.
-     */
-    public static DistanceUnit DISTANCE_UNIT = DistanceUnit.INCH;
-
+    
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
      * the built-in velocity PID, *these values are fine as is*. However, if you do not have drive

@@ -17,6 +17,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TranslationalVelocityConstraint;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -57,8 +58,8 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5, 0.5, 0.5);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(7, 0.2, 0.9);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(12, 0.2, 0.5);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -82,10 +83,13 @@ public class SampleMecanumDrive extends MecanumDrive {
     public List<Integer> lastEncPositions = new ArrayList<>();
     public List<Integer> lastEncVels = new ArrayList<>();
 
+    public double currentMaxVel;
+
     //GoBildaPinpointDriver odo; // Declare OpMode member for the Odometry Computer
     //public Pose2d drivePower;
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
+
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
@@ -98,6 +102,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
+
 
         // TODO: adjust the names of the following hardware devices to match your configuration
         /*odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
@@ -344,5 +349,18 @@ public class SampleMecanumDrive extends MecanumDrive {
         return new ProfileAccelerationConstraint(maxAccel);
     }
 
+    public MinVelocityConstraint createVelocityConstraint(double maxVel, double maxAccel, double trackWidth) {
+        return new MinVelocityConstraint(Arrays.asList(
+                new TranslationalVelocityConstraint(maxVel),
+                new AngularVelocityConstraint(maxAccel / trackWidth)
+        ));
+    }
 
+    public double getCurrentMaxVel() {
+        return currentMaxVel;
+    }
+
+    public void setCurrentMaxVel(double currentMaxVel) {
+        this.currentMaxVel = currentMaxVel;
+    }
 }

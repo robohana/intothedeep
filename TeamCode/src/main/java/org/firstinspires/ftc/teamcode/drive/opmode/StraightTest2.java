@@ -28,13 +28,25 @@ import java.util.List;
  */
 @Config
 @Autonomous(group = "drive")
-public class StraightTest extends LinearOpMode {
+public class StraightTest2 extends LinearOpMode {
     public static double DISTANCE = 40; // in
     public SampleMecanumDrive drive;
     public TwoWheelTrackingLocalizer track;
+    public double currentMaxVel;
+    private MinVelocityConstraint velocityConstraint;
 
-    public static double MAX_VEL = 1000; // max velocity in inches per second
-    public static double MAX_ACCEL = 1000;
+
+    public static double MAX_VEL = 1200; // max velocity in inches per second
+    public static double MIN_VEL = 0;
+    public static double MAX_ACCEL = 1200;
+
+    public void setDynamicVelocityConstraint(double maxVel) {
+        this.velocityConstraint = new MinVelocityConstraint(Arrays.asList(
+                new MinVelocityConstraint(Arrays.asList(
+                        getVelocityConstraint(maxVel, MAX_ACCEL, TRACK_WIDTH)
+                ))
+        ));
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -44,19 +56,8 @@ public class StraightTest extends LinearOpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         track = new TwoWheelTrackingLocalizer(hardwareMap, drive); // Adjust constructor parameters as needed
 
-        /*Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
-                .forward(DISTANCE)
-                .build();*/
-
         Trajectory trajectory = drive.trajectoryBuilder(new Pose2d())
-                .forward(DISTANCE,
-                        new MinVelocityConstraint(Arrays.asList(
-                                new MinVelocityConstraint(Arrays.asList(
-                                        drive.getVelocityConstraint(MAX_VEL, MAX_ACCEL, TRACK_WIDTH)
-                                ))
-                        )),
-                        new ProfileAccelerationConstraint(MAX_ACCEL)
-                )
+                .forward(DISTANCE)
                 .build();
 
         waitForStart();
@@ -65,16 +66,31 @@ public class StraightTest extends LinearOpMode {
 
         drive.followTrajectory(trajectory);
 
-        Pose2d poseEstimate = drive.getPoseEstimate();
-        telemetry.addData("finalX", poseEstimate.getX());
-        telemetry.addData("finalY", poseEstimate.getY());
-        telemetry.addData("finalHeading", poseEstimate.getHeading());
-        telemetry.addData("Parallel Encoder Position", track.parallelEncoder.getCurrentPosition());
-        telemetry.addData("Perpendicular Encoder Position", track. perpendicularEncoder.getCurrentPosition());
-        telemetry.addData("Wheel Positions (inches)", track.getWheelPositions());
-        telemetry.update();
+        while (opModeIsActive() && !isStopRequested()) {
+            // Get the current pose and the target pose (from trajectory)
+            Pose2d currentPose = drive.getPoseEstimate();
+            Pose2d targetPose = trajectory.end();
 
-        while (!isStopRequested() && opModeIsActive()) ;
+            // Calculate the remaining distance to the target
+            double remainingDistance = calculateRemainingDistance(currentPose, targetPose);
+
+            // Adjust max velocity based on remaining distance
+            double adjustedMaxVel = Math.max(MIN_VEL, (remainingDistance / DISTANCE) * MAX_VEL);
+
+            // Dynamically update the velocity constraint
+            setDynamicVelocityConstraint(adjustedMaxVel);
+
+            drive.update(); // Perform the robot's motion based on the new velocity constraints
+
+            telemetry.addData("Remaining Distance", remainingDistance);
+            telemetry.addData("Adjusted Max Velocity", adjustedMaxVel);
+            telemetry.update();
+        }
     }
 
+    public double calculateRemainingDistance(Pose2d currentPose, Pose2d targetPose) {
+        double deltaX = targetPose.getX() - currentPose.getX();
+        double deltaY = targetPose.getY() - currentPose.getY();
+        return Math.sqrt(deltaX * deltaX + deltaY * deltaY); // Euclidean distance formula
+    }
 }
