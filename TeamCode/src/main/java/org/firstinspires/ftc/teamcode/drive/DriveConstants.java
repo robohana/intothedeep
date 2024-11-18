@@ -49,7 +49,6 @@ public class DriveConstants {
     public static double WHEEL_RADIUS = 2.04; // in
     public static double GEAR_RATIO = 19.2; // output (wheel) speed / input (motor) speed
     public static double TRACK_WIDTH = 16.5; // in
-    
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
      * the built-in velocity PID, *these values are fine as is*. However, if you do not have drive
@@ -78,7 +77,7 @@ public class DriveConstants {
     public static RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR =
             RevHubOrientationOnRobot.LogoFacingDirection.UP;
     public static RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR =
-            RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
+            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
 
     public static double encoderTicksToInches(double ticks) {
