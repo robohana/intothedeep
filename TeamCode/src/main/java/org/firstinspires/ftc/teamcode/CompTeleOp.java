@@ -1,4 +1,7 @@
 package org.firstinspires.ftc.teamcode;
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 //import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -25,12 +28,22 @@ public class CompTeleOp extends LinearOpMode {
     public DcMotor hiExtend;
     public CRServo intakeRoller;
 
+    private PIDController controller;
+
+    public static double p = 0.005, i = 0, d = 0.0009;
+    public static double f = 0.1;
+
+    private final double ticks_in_degee = 5281.1 / 180.0;
+    int target;
     //double JointPower;
 
     double max;
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        controller = new PIDController(p, i, d);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         //handware map for Drivetrain - LC
         backleftDrive = hardwareMap.get(DcMotor.class, "BL");
@@ -143,6 +156,36 @@ public class CompTeleOp extends LinearOpMode {
                 hiExtend.setPower(-1);
             } else {
                 hiExtend.setPower(0);
+            }
+
+            if (gamepad2.a) {
+                int target = -1000;
+                controller.setPID(p, i, d);
+                int armPos = hiJoint.getCurrentPosition();
+                double pid = controller.calculate(armPos, target);
+                double ff = Math.cos(Math.toRadians(target / ticks_in_degee)) * f;
+
+                double power = pid + ff;
+
+                hiJoint.setPower(power);
+                telemetry.addData("pos", armPos);
+                telemetry.addData("target", target);
+                telemetry.update();
+            }
+
+            if (gamepad2.b) {
+                int target = 50;
+                controller.setPID(p, i, d);
+                int armPos = hiJoint.getCurrentPosition();
+                double pid = controller.calculate(armPos, target);
+                double ff = Math.cos(Math.toRadians(target / ticks_in_degee)) * f;
+
+                double power = pid + ff;
+
+                hiJoint.setPower(power);
+                telemetry.addData("pos", armPos);
+                telemetry.addData("target", target);
+                telemetry.update();
             }
 
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftfrontPower, rightfrontPower);

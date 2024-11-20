@@ -35,7 +35,7 @@ public class DriveConstants {
      * from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = false;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(11,0.2,0.9,0.2016);
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(35,15,3,0.2016);
         //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
     /*
@@ -56,7 +56,7 @@ public class DriveConstants {
      * empirically tuned.
      */
     public static double kV = 2 / rpmToVelocity(MAX_RPM); //0.18V is my theoretical value
-    public static double kA = 0;
+    public static double kA = 0.0005;
     public static double kStatic = 12;
 
     /*
