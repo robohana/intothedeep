@@ -57,7 +57,8 @@ public class autoredLime extends LinearOpMode {
 
 
         Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
-                .strafeRight(DISTANCE2)
+                //.strafeRight(DISTANCE2)
+                .forward(DISTANCE2)
                 .build();
 
         waitForStart();

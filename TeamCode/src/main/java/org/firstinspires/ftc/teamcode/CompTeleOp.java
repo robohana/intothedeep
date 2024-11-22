@@ -90,7 +90,14 @@ public class CompTeleOp extends LinearOpMode {
 
             //sets the power that goes to the joint on the hanger and intake to be relyant on gamepad 2 (opertator) right stick when you move it in the y direction - LC
             double jointPower = -gamepad2.right_stick_y;
-            hiJoint.setPower(jointPower);
+            if (-gamepad2.right_stick_y > 0.5){
+                double scalingFactor = 0.5;
+                jointPower  *= scalingFactor;
+                hiJoint.setPower(jointPower);
+            } //if else (-gamepad2.right_stick_y < 0.5){
+
+            //}
+            //hiJoint.setPower(jointPower);
 
             //Controlls for gamepad 1 (driver) - LC
             double axial   = -gamepad1.left_stick_y;  // Forward
@@ -116,14 +123,21 @@ public class CompTeleOp extends LinearOpMode {
                 rightbackPower  /= max;
             }
 
-            //define a scaling factor to reduce power - LC
-            double scalingFactor = 0.5; //Adjust this value between 0 and 1 to reduce power, 1 is normal power, 0 is no power, don't go over 1 or under 0 - LC
-
-            //apply scaling factor - LC
-            leftfrontPower  *= scalingFactor;
-            rightfrontPower *= scalingFactor;
-            leftbackPower   *= scalingFactor;
-            rightbackPower  *= scalingFactor;
+            if (gamepad1.right_trigger > 0.5){
+                double scalingFactor = 0.3; //Adjust this value between 0 and 1 to reduce power, 1 is normal power, 0 is no power, don't go over 1 or under 0 - LC
+                //apply scaling factor - LC
+                leftfrontPower  *= scalingFactor;
+                rightfrontPower *= scalingFactor;
+                leftbackPower   *= scalingFactor;
+                rightbackPower  *= scalingFactor;
+            } else {
+                double scalingFactor = 0.7; //Adjust this value between 0 and 1 to reduce power, 1 is normal power, 0 is no power, don't go over 1 or under 0 - LC
+                //apply scaling factor - LC
+                leftfrontPower *= scalingFactor;
+                rightfrontPower *= scalingFactor;
+                leftbackPower *= scalingFactor;
+                rightbackPower *= scalingFactor;
+            }
 
             //Send calculated power to wheels - LC
             frontleftDrive.setPower(leftfrontPower);
@@ -131,13 +145,16 @@ public class CompTeleOp extends LinearOpMode {
             backleftDrive.setPower(leftbackPower);
             backrightDrive.setPower(rightbackPower);
 
-            /* set's it so that the butter gripper will be contantly closed when you are not
-                holding the button. it is a continuous servo just is really set up like a regular servo
-                with how zero is the open position and 1 is the closed butter position - LC  */
+            /* set's it so that the butter gripper will be right all the way open, left all the way
+            close or prob just chill. hopefully just chill. This is also with a CR Servo so 1 and
+            -1 are max power to the system. you can do half power but DON'T SET THE POWER -1<=X<=1
+            OR I WILL FIND YOU!!- LC  */
             if (gamepad2.right_bumper) {         // go max open position - LC
                 claw.setPower(-1);
-            } else {                          // go to closed position - LC
+            } else if (gamepad2.left_bumper) {   // go to closed position - LC
                 claw.setPower(1);
+            } else {                             // go to no power - LC
+                claw.setPower(0);
             }
 
             //set power and control of the servo for intake to the (op) triggers - LC
@@ -174,7 +191,7 @@ public class CompTeleOp extends LinearOpMode {
             }
 
             if (gamepad2.b) {
-                int target = 50;
+                int target = -500;
                 controller.setPID(p, i, d);
                 int armPos = hiJoint.getCurrentPosition();
                 double pid = controller.calculate(armPos, target);
