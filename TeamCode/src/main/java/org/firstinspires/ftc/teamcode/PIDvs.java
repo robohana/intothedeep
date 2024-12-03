@@ -18,7 +18,7 @@ public class PIDvs extends OpMode {
 
     public static int target = 0;
 
-    private final double ticks_in_degee = 5281.1 / 180.0;
+    private final double ticks_in_degee = 537.7 / 180.0;
 
     public DcMotor leftviperSlide;
     public DcMotor rightviperSlide;
@@ -42,7 +42,7 @@ public class PIDvs extends OpMode {
         double power = pid + ff;
 
         leftviperSlide.setPower(power);
-        rightviperSlide.setPower(power);
+        rightviperSlide.setPower(-power);
 
         telemetry.addData("pos", vsPos);
         telemetry.addData("target", target);

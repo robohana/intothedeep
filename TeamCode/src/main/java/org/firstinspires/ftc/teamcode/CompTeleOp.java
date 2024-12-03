@@ -90,14 +90,14 @@ public class CompTeleOp extends LinearOpMode {
 
             //sets the power that goes to the joint on the hanger and intake to be relyant on gamepad 2 (opertator) right stick when you move it in the y direction - LC
             double jointPower = -gamepad2.right_stick_y;
-            if (-gamepad2.right_stick_y > 0.5){
+            /*if (-gamepad2.right_stick_y > 0.5){
                 double scalingFactor = 0.5;
                 jointPower  *= scalingFactor;
                 hiJoint.setPower(jointPower);
-            } //if else (-gamepad2.right_stick_y < 0.5){
+            }*/ //if else (-gamepad2.right_stick_y < 0.5){
 
             //}
-            //hiJoint.setPower(jointPower);
+            hiJoint.setPower(jointPower);
 
             //Controlls for gamepad 1 (driver) - LC
             double axial   = -gamepad1.left_stick_y;  // Forward
