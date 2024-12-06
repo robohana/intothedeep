@@ -27,7 +27,7 @@ public class autoredLime extends LinearOpMode {
     public SampleMecanumDrive drive;
     public TwoWheelTrackingLocalizer track;
 
-    public static double MAX_VEL = 1000; // max velocity in inches per second
+    public static double MAX_VEL = 30; // max velocity in inches per second
     public static double MAX_ACCEL = 1000;
     public static double ANGLE = 90; // deg
 
@@ -56,10 +56,10 @@ public class autoredLime extends LinearOpMode {
                 .build();
 
 
-        Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
+        /*Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
                 .strafeRight(DISTANCE2)
                 //.forward(DISTANCE2)
-                .build();
+                .build();*/
 
         waitForStart();
 
@@ -70,7 +70,7 @@ public class autoredLime extends LinearOpMode {
         sleep(500);
         //drive.turn(Math.toRadians(ANGLE));
         //sleep(500);
-        drive.followTrajectory(trajectory2);
+        // drive.followTrajectory(trajectory2);
 
 
         Pose2d poseEstimate = drive.getPoseEstimate();

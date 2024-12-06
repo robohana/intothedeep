@@ -35,7 +35,7 @@ public class DriveConstants {
      * from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = false;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(35,15,3,0.2016);
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0,0,0,0);
         //getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
     /*
@@ -55,9 +55,9 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1 / rpmToVelocity(MAX_RPM); //0.18V is my theoretical value
-    public static double kA = 0.0005;
-    public static double kStatic = 12;
+    public static double kV = 0.0157151282555;//1 / rpmToVelocity(MAX_RPM); //0.18V is my theoretical value
+    public static double kA = 0.0045;
+    public static double kStatic = 0.004;
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -66,8 +66,8 @@ public class DriveConstants {
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 984;// 1267.58 - theoretical value
-    public static double MAX_ACCEL = 984;//1287.58 - theoretical value
+    public static double MAX_VEL = 30;// 1267.58 - theoretical value
+    public static double MAX_ACCEL = 30;//1287.58 - theoretical value
     public static double MAX_ANG_VEL = Math.toRadians(180); //32.74 - theoretical value
     public static double MAX_ANG_ACCEL = Math.toRadians(180); //130.96 - theoretical value
 

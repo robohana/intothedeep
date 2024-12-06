@@ -176,7 +176,7 @@ public class CompTeleOp extends LinearOpMode {
             }
 
             if (gamepad2.a) {
-                int target = -1000;
+                int target = -1100;
                 controller.setPID(p, i, d);
                 int armPos = hiJoint.getCurrentPosition();
                 double pid = controller.calculate(armPos, target);
@@ -191,7 +191,7 @@ public class CompTeleOp extends LinearOpMode {
             }
 
             if (gamepad2.b) {
-                int target = -500;
+                int target = -300;
                 controller.setPID(p, i, d);
                 int armPos = hiJoint.getCurrentPosition();
                 double pid = controller.calculate(armPos, target);
