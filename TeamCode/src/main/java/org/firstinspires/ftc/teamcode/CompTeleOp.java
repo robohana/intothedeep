@@ -30,6 +30,9 @@ public class CompTeleOp extends LinearOpMode {
 
     private PIDController controller;
 
+    private boolean lockEnabled = false;
+
+
     public static double p = 0.005, i = 0, d = 0.0009;
     public static double f = 0.1;
 
@@ -81,7 +84,23 @@ public class CompTeleOp extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+
         while (opModeIsActive()) {
+             //hiJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+            if (gamepad1.x && !lockEnabled) {
+                lockEnabled = true;
+            }
+
+            // If locked, set all motors to zero and skip further processing
+            if (lockEnabled) {
+                hold();
+                telemetry.addData("Status", "Locked");
+                telemetry.update();
+                continue;
+            }
+
 
             //sets the power that goes to the viper slides to be relyant on gamepad 2 (opertator) left stick when you move it in the y direction - LC
             double vSPower = -gamepad2.left_stick_y;
@@ -191,7 +210,7 @@ public class CompTeleOp extends LinearOpMode {
             }
 
             if (gamepad2.b) {
-                int target = -300;
+                int target = -400;
                 controller.setPID(p, i, d);
                 int armPos = hiJoint.getCurrentPosition();
                 double pid = controller.calculate(armPos, target);
@@ -212,6 +231,18 @@ public class CompTeleOp extends LinearOpMode {
             telemetry.update();
 
         }
+    }
+    private void hold() {
+        frontleftDrive.setPower(0);
+        frontrightDrive.setPower(0);
+        backleftDrive.setPower(0);
+        backrightDrive.setPower(0);
+        leftviperSlide.setPower(0);
+        rightviperSlide.setPower(0);
+        hiJoint.setPower(1);
+        hiExtend.setPower(0);
+        claw.setPower(0);
+        intakeRoller.setPower(0);
     }
 
 }
