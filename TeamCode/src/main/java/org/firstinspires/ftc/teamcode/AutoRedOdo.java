@@ -42,11 +42,11 @@ public class AutoRedOdo extends LinearOpMode {
 
     public static double ARM_P = 0.005, ARM_I = 0, ARM_D = 0.0009, ARM_F = 0.1;
     private static final double ARM_TICKS_PER_DEGREE = 5281.1 / 180.0;
-    private static final int ARM_TARGET = -300;
+    private static final int ARM_TARGET = -400;
 
-    public static double VS_P = 0, VS_I = 0, VS_D = 0, VS_F = 0;
-    private static final double VS_TICKS_PER_DEGREE = 5281.1 / 180.0;
-    private static final int VS_TARGET = -300;
+    public static double VS_P = 0.01, VS_I = 0, VS_D = 0.0001, VS_F = 0.1;
+    private static final double VS_TICKS_PER_DEGREE = 537.7 / 180.0;
+    private static final int VS_TARGET = 1000;
 
     private SampleMecanumDrive drive;
     public hiJointPIDController hiJointPIDController;
@@ -109,13 +109,34 @@ public class AutoRedOdo extends LinearOpMode {
 
         while (!isStopRequested() && timer.seconds() < RUNTIME) {
             /*
-            * Runs sequence, runs so the joint angles up slightly to be out of the way of the viper
+            * Runs sequence, runs the joint angles up slightly to be out of the way of the viper
             * slides then it runs through the trajectory seq made above - LC 12/9
             */
             //hiJoint_PID();
             hiJointPIDController.setTarget(ARM_TARGET);
-            hiJointPIDController.update();
+            while (opModeIsActive() && Math.abs(hiJoint.getCurrentPosition() - hiJointPIDController.getTarget()) > 60) {
+                hiJointPIDController.update();
+
+                // Optionally, add telemetry for debugging
+                telemetry.addData("hiJoint Position", hiJoint.getCurrentPosition());
+                telemetry.addData("hiJoint Target", hiJointPIDController.getTarget());
+                telemetry.update();
+            }
+            hiJoint.setPower(0);
+
             drive.followTrajectory(trajectory1);
+
+            vsPIDController.setTarget(VS_TARGET);
+            while (opModeIsActive() && Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > 50) {
+                vsPIDController.update();
+
+                // Optionally, add telemetry for debugging
+                telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
+                telemetry.addData("VS Target", vsPIDController.getTarget());
+                telemetry.update();
+            }
+            leftviperSlide.setPower(0);
+            rightviperSlide.setPower(0);
             /*vsPIDController.setTarget(VS_TARGET);
             vsPIDController.update();*/
             drive.followTrajectorySequence(trajSeq);
@@ -124,6 +145,8 @@ public class AutoRedOdo extends LinearOpMode {
             telemetry.addData("finalX", poseEstimate.getX());
             telemetry.addData("finalY", poseEstimate.getY());
             telemetry.addData("finalHeading", poseEstimate.getHeading());
+            telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
+            telemetry.addData("VS Target", vsPIDController.getTarget());
             telemetry.update();
 
             while (!isStopRequested()) idle();

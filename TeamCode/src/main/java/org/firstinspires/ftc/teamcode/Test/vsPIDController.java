@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Config
 public class vsPIDController {
-    Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+    //Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
     // PID controller for handling the arm's motion - LC 12/9
     private final PIDController controller;
     // Motor controlling the viper slides - LC 12/9
@@ -71,6 +71,9 @@ public class vsPIDController {
         lvsMotor.setPower(power);
         rvsMotor.setPower(-power);
 
+    }
+    public int getTarget() {
+        return (int) controller.getSetPoint(); // Assuming `controller` has a `getSetPoint` method
     }
 }
 

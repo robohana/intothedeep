@@ -46,8 +46,6 @@ public class CompTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        hiJointPIDController = new hiJointPIDController(hiJoint, ARM_P, ARM_I, ARM_D, ARM_F, ARM_TICKS_PER_DEGREE);
-        vsPIDController = new vsPIDController(leftviperSlide, rightviperSlide, VS_P, VS_I, VS_D, VS_F, VS_TICKS_PER_DEGREE);
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         //handware map for Drivetrain - LC
@@ -65,6 +63,9 @@ public class CompTeleOp extends LinearOpMode {
         hiJoint = hardwareMap.get(DcMotor.class, "hiJoint");
         hiExtend = hardwareMap.get(DcMotor.class, "hiExtend");
         intakeRoller = hardwareMap.get(CRServo.class, "intakeRoller");
+
+        hiJointPIDController = new hiJointPIDController(hiJoint, ARM_P, ARM_I, ARM_D, ARM_F, ARM_TICKS_PER_DEGREE);
+        vsPIDController = new vsPIDController(leftviperSlide, rightviperSlide, VS_P, VS_I, VS_D, VS_F, VS_TICKS_PER_DEGREE);
 
 
         //this sets the direction the motor will spin for the drive wheels - LC

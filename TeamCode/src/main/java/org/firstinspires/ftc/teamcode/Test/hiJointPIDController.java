@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Config
 public class hiJointPIDController {
-    Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+    //Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
     // PID controller for handling the arm's motion - LC 12/9
     private final PIDController controller;
     // Motor controlling the arm/joint - LC 12/9
@@ -61,12 +61,21 @@ public class hiJointPIDController {
      * This method should be called periodically in the control loop. - LC 12/9
      */
     public void update() {
+        if (hiJointMotor == null) {
+            throw new NullPointerException("hiJointMotor is null. Make sure it is initialized.");
+        }
+        if (controller == null) {
+            throw new NullPointerException("PIDController is null. Make sure it is initialized.");
+        }
         int armPos = hiJointMotor.getCurrentPosition();
         double pid = controller.calculate(armPos);
         double ff = Math.cos(Math.toRadians(controller.getSetPoint() / ticksPerDegree)) * feedforward;
         double power = pid + ff;
 
         hiJointMotor.setPower(power);
+    }
+    public int getTarget() {
+        return (int) controller.getSetPoint(); // Assuming `controller` has a `getSetPoint` method
     }
 }
 
