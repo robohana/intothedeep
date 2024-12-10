@@ -9,6 +9,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 //import com.qualcomm.robotcore.hardware.DcMotorControllerEx;
 //import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Test.hiJointPIDController;
+import org.firstinspires.ftc.teamcode.Test.vsPIDController;
 
 
 @TeleOp(name="CompTeleOp")
@@ -22,31 +25,30 @@ public class CompTeleOp extends LinearOpMode {
     public DcMotor leftviperSlide;
     public DcMotor rightviperSlide;
     public CRServo claw;
-    //double vSPower;
 
     public DcMotor hiJoint;
     public DcMotor hiExtend;
     public CRServo intakeRoller;
 
-    private PIDController controller;
-
     private boolean lockEnabled = false;
 
+    public static double ARM_P = 0.005, ARM_I = 0, ARM_D = 0.0009, ARM_F = 0.1;
+    private static final double ARM_TICKS_PER_DEGREE = 5281.1 / 180.0;
+    public hiJointPIDController hiJointPIDController;
 
-    public static double p = 0.005, i = 0, d = 0.0009;
-    public static double f = 0.1;
-
-    private final double ticks_in_degee = 5281.1 / 180.0;
-    int target;
-    //double JointPower;
+    public static double VS_P = 0, VS_I = 0, VS_D = 0, VS_F = 0;
+    private static final double VS_TICKS_PER_DEGREE = 5281.1 / 180.0;
+    private static final int VS_TARGET = -300;
+    public vsPIDController vsPIDController;
 
     double max;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        controller = new PIDController(p, i, d);
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        hiJointPIDController = new hiJointPIDController(hiJoint, ARM_P, ARM_I, ARM_D, ARM_F, ARM_TICKS_PER_DEGREE);
+        vsPIDController = new vsPIDController(leftviperSlide, rightviperSlide, VS_P, VS_I, VS_D, VS_F, VS_TICKS_PER_DEGREE);
+        Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         //handware map for Drivetrain - LC
         backleftDrive = hardwareMap.get(DcMotor.class, "BL");
@@ -79,15 +81,12 @@ public class CompTeleOp extends LinearOpMode {
         hiJoint.setDirection(DcMotor.Direction.FORWARD);
         hiExtend.setDirection(DcMotor.Direction.FORWARD);
 
-
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         waitForStart();
 
 
         while (opModeIsActive()) {
-             //hiJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
 
             if (gamepad1.x && !lockEnabled) {
                 lockEnabled = true;
@@ -100,7 +99,6 @@ public class CompTeleOp extends LinearOpMode {
                 telemetry.update();
                 continue;
             }
-
 
             //sets the power that goes to the viper slides to be relyant on gamepad 2 (opertator) left stick when you move it in the y direction - LC
             double vSPower = -gamepad2.left_stick_y;
@@ -194,34 +192,15 @@ public class CompTeleOp extends LinearOpMode {
                 hiExtend.setPower(0);
             }
 
+            //runs the hiJoint to -1100 when press and holding a calls in the file hiJointPIDController - LC 12/9
             if (gamepad2.a) {
-                int target = -1100;
-                controller.setPID(p, i, d);
-                int armPos = hiJoint.getCurrentPosition();
-                double pid = controller.calculate(armPos, target);
-                double ff = Math.cos(Math.toRadians(target / ticks_in_degee)) * f;
-
-                double power = pid + ff;
-
-                hiJoint.setPower(power);
-                telemetry.addData("pos", armPos);
-                telemetry.addData("target", target);
-                telemetry.update();
+                hiJointPIDController.setTarget(-1100);
+                hiJointPIDController.update();
             }
-
+            //runs the hiJoint to -400 when press and holding b calls in the file hiJointPIDController - LC 12/9
             if (gamepad2.b) {
-                int target = -400;
-                controller.setPID(p, i, d);
-                int armPos = hiJoint.getCurrentPosition();
-                double pid = controller.calculate(armPos, target);
-                double ff = Math.cos(Math.toRadians(target / ticks_in_degee)) * f;
-
-                double power = pid + ff;
-
-                hiJoint.setPower(power);
-                telemetry.addData("pos", armPos);
-                telemetry.addData("target", target);
-                telemetry.update();
+                hiJointPIDController.setTarget(-400);
+                hiJointPIDController.update();
             }
 
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftfrontPower, rightfrontPower);

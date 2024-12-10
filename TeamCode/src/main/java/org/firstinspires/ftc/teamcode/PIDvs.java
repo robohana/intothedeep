@@ -35,14 +35,14 @@ public class PIDvs extends OpMode {
     @Override
     public void loop(){
         controller.setPID(p, i, d);
-        int vsPos = leftviperSlide.getCurrentPosition();
+        int vsPos = rightviperSlide.getCurrentPosition();
         double pid = controller.calculate(vsPos, target);
         double ff = Math.cos(Math.toRadians(target / ticks_in_degee)) * f;
 
         double power = pid + ff;
 
-        leftviperSlide.setPower(power);
-        rightviperSlide.setPower(-power);
+        leftviperSlide.setPower(-power);
+        rightviperSlide.setPower(power);
 
         telemetry.addData("pos", vsPos);
         telemetry.addData("target", target);

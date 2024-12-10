@@ -30,6 +30,7 @@ package org.firstinspires.ftc.teamcode.Test;
      */
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -85,6 +86,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
      */
 
     @TeleOp(name="Omni Drive To AprilTag Lime", group = "Concept")
+    @Disabled
 
     public class RobotAutoDriveToAprilTagOmniLime extends LinearOpMode {
 
