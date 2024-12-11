@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,8 +14,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.Test.hiJointPIDController;
-import org.firstinspires.ftc.teamcode.Test.vsPIDController;
+import org.firstinspires.ftc.teamcode.Constants.hiJointPIDController;
+import org.firstinspires.ftc.teamcode.Constants.vsPIDController;
 
 
 @Config
@@ -25,7 +24,7 @@ public class AutoRedOdo extends LinearOpMode {
     public static double d_DISTANCE1 = 24; // in
     public static double d_DISTANCE2 = 20;
     public static double d_DISTANCE3 = 50;
-    public static double d_DISTANCE4 = 10;
+    public static double d_DISTANCE4 = 3;
 
     public static double s_DISTANCE1 = 56;
     public static double s_DISTANCE2 = 5;
@@ -46,7 +45,11 @@ public class AutoRedOdo extends LinearOpMode {
 
     public static double VS_P = 0.01, VS_I = 0, VS_D = 0.0001, VS_F = 0.1;
     private static final double VS_TICKS_PER_DEGREE = 537.7 / 180.0;
-    private static final int VS_TARGET = 1000;
+    private static final int VS_TARGET1 = 4000;
+    private static final int VS_TARGET2 = 3900;
+    private static final int VS_TARGET3 = 0;
+
+
 
     private SampleMecanumDrive drive;
     public hiJointPIDController hiJointPIDController;
@@ -65,6 +68,8 @@ public class AutoRedOdo extends LinearOpMode {
         //arm_controller = new PIDController(arm_p, arm_i, arm_d);
 
         hiJoint = hardwareMap.get(DcMotor.class, "hiJoint");
+        leftviperSlide = hardwareMap.get(DcMotor.class, "leftviperSlide");
+        rightviperSlide = hardwareMap.get(DcMotor.class, "rightviperSlide");
 
         hiJointPIDController = new hiJointPIDController(hiJoint, ARM_P, ARM_I, ARM_D, ARM_F, ARM_TICKS_PER_DEGREE);
         vsPIDController = new vsPIDController(leftviperSlide, rightviperSlide, VS_P, VS_I, VS_D, VS_F, VS_TICKS_PER_DEGREE);
@@ -92,7 +97,13 @@ public class AutoRedOdo extends LinearOpMode {
         Trajectory trajectory1 = drive.trajectoryBuilder(startPose)
                 .forward(d_DISTANCE1)
                 .build();
-        TrajectorySequence trajSeq = drive.trajectorySequenceBuilder(trajectory1.end())
+        Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
+                .forward(d_DISTANCE4)
+                .build();
+        Trajectory trajectory3 = drive.trajectoryBuilder(trajectory2.end())
+                .back(d_DISTANCE4)
+                .build();
+        TrajectorySequence trajSeq = drive.trajectorySequenceBuilder(trajectory3.end())
                 //.forward(d_DISTANCE1)
                 .strafeRight(s_DISTANCE1)
                 .forward(d_DISTANCE2)
@@ -102,6 +113,19 @@ public class AutoRedOdo extends LinearOpMode {
                 .strafeLeft(s_DISTANCE2)
                 .forward(d_DISTANCE3)
                 .build();
+
+        Thread hiJointHoldThread = new Thread(() -> {
+            hiJointPIDController.setTarget(ARM_TARGET);
+            while (opModeIsActive()) {
+                hiJointPIDController.update();
+                try {
+                    Thread.sleep(10); // Add a small delay to prevent overloading the loop
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            hiJoint.setPower(0); // Stop motor when op mode is finished
+        });
 
         waitForStart();
 
@@ -123,12 +147,17 @@ public class AutoRedOdo extends LinearOpMode {
                 telemetry.update();
             }
             hiJoint.setPower(0);
+            hiJointHoldThread.start();
 
+
+            // runs us forward to the chambers in order to have the specimens - LC 12/10
             drive.followTrajectory(trajectory1);
 
-            vsPIDController.setTarget(VS_TARGET);
+            // puts the vs up high enough so we are in position to hang a sample once we move slightly forward - LC 12/10
+            vsPIDController.setTarget(VS_TARGET1);
             while (opModeIsActive() && Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > 50) {
                 vsPIDController.update();
+
 
                 // Optionally, add telemetry for debugging
                 telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
@@ -137,9 +166,49 @@ public class AutoRedOdo extends LinearOpMode {
             }
             leftviperSlide.setPower(0);
             rightviperSlide.setPower(0);
-            /*vsPIDController.setTarget(VS_TARGET);
-            vsPIDController.update();*/
+
+            //gets us closer to the bar once our vs are up so that we can hang the specimen - LC 12/10
+            drive.followTrajectory(trajectory2);
+
+            //lowers the vs slightly so that we can hang the specimen on securely, this is the pull down part - LC 12/10
+            vsPIDController.setTarget(VS_TARGET2);
+            while (opModeIsActive() && Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > 50) {
+                vsPIDController.update();
+
+                // Optionally, add telemetry for debugging - LC 12/10
+                telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
+                telemetry.addData("VS Target", vsPIDController.getTarget());
+                telemetry.update();
+            }
+            leftviperSlide.setPower(0);
+            rightviperSlide.setPower(0);
+
+            //TODO: open claw to release the sample after it is hung
+
+            // reverse so that we can lower the vs and be clear of the bars - LC 12/10
+            drive.followTrajectory(trajectory3);
+
+            //lower the vs down to (about) their zero position - LC 12/10
+            vsPIDController.setTarget(VS_TARGET3);
+            while (opModeIsActive() && Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > 100) {
+                vsPIDController.update();
+                hiJointPIDController.update();
+
+                // Optionally, add telemetry for debugging
+                telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
+                telemetry.addData("VS Target", vsPIDController.getTarget());
+                telemetry.update();
+            }
+            leftviperSlide.setPower(0);
+            rightviperSlide.setPower(0);
+
+            //run trajectory sequence where we move samples to the observation zone for the human player - LC 12/10
             drive.followTrajectorySequence(trajSeq);
+
+            hiJointHoldThread.interrupt();
+            hiJointHoldThread.join();
+
+
 
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("finalX", poseEstimate.getX());

@@ -1,12 +1,10 @@
-package org.firstinspires.ftc.teamcode.Test;
+package org.firstinspires.ftc.teamcode.Constants;
 
-import com.acmerobotics.dashboard.FtcDashboard;
+
+
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Config
 public class hiJointPIDController {
@@ -19,6 +17,8 @@ public class hiJointPIDController {
     private final double feedforward;
     // Conversion factor from encoder ticks to degrees - LC 12/9
     private final double ticksPerDegree;
+
+
 
     /**
      * Constructor for the ArmPIDController class. - LC 12/9
@@ -64,6 +64,7 @@ public class hiJointPIDController {
         if (hiJointMotor == null) {
             throw new NullPointerException("hiJointMotor is null. Make sure it is initialized.");
         }
+
         if (controller == null) {
             throw new NullPointerException("PIDController is null. Make sure it is initialized.");
         }

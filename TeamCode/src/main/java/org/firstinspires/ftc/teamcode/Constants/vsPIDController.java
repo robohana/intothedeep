@@ -1,12 +1,8 @@
-package org.firstinspires.ftc.teamcode.Test;
+package org.firstinspires.ftc.teamcode.Constants;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Config
 public class vsPIDController {
