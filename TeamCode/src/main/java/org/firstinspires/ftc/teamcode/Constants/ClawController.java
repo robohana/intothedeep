@@ -27,17 +27,17 @@ public class ClawController {
     }
 
     // Opens the claw by setting the servo power to OPEN_POWER - LC 12/10
-    public void openClaw() {
+    public void open() {
         clawServo.setPower(OPEN_POWER);
     }
 
     // Closes the claw by setting the servo power to CLOSE_POWER - LC 12/10
-    public void closeClaw() {
+    public void close() {
         clawServo.setPower(CLOSE_POWER);
     }
 
     // Stops the claw by setting the servo power to STOP_POWER - LC 12/10
-    public void stopClaw() {
+    public void stop() {
         clawServo.setPower(STOP_POWER);
     }
 }

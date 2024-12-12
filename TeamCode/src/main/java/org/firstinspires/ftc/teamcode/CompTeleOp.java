@@ -49,6 +49,9 @@ public class CompTeleOp extends LinearOpMode {
     public hiExtendController hiExtendController;
     private DriveController driveController;
 
+    double scalingFactor = 0.5;
+
+
     double max;
 
     @Override
@@ -124,12 +127,10 @@ public class CompTeleOp extends LinearOpMode {
             double vSPower = -gamepad2.left_stick_y;
             leftviperSlide.setPower(vSPower);
             rightviperSlide.setPower(vSPower);
-
             //sets the power that goes to the joint on the hanger and intake to be relyant on gamepad 2 (opertator) right stick when you move it in the y direction - LC
             double jointPower = -gamepad2.right_stick_y;
-
+            //jointPower *= scalingFactor;
             hiJoint.setPower(jointPower);
-
             // Use the DriveController to handle driving - LC 12/10
             driveController.drive(gamepad1);
 
@@ -138,11 +139,11 @@ public class CompTeleOp extends LinearOpMode {
             -1 are max power to the system. you can do half power but DON'T SET THE POWER -1<=X<=1
             OR I WILL FIND YOU!!- LC  */
             if (gamepad2.right_bumper) {         // go max open using clawController - LC 12/10
-                clawController.openClaw();
+                clawController.open();
             } else if (gamepad2.left_bumper) {   // go to closed using clawController - LC 12/10
-                clawController.closeClaw();
+                clawController.close();
             } else {                             // go to no power using clawController - LC 12/10
-                clawController.stopClaw();
+                clawController.stop();
             }
 
             //set power and control of the servo for intake to the (op) triggers - LC
@@ -151,7 +152,7 @@ public class CompTeleOp extends LinearOpMode {
             } else if (gamepad2.left_trigger > 0.5) {   // release using intakerollerController - LC 12/10
                 intakerollerController.release();
             } else {                                    // stop using intakerollerController - LC 12/10
-                intakerollerController.stopintake();
+                intakerollerController.stop();
             }
 
             //set power and control of the motor for extendy to the (op) dpad L and R - LC
@@ -160,7 +161,7 @@ public class CompTeleOp extends LinearOpMode {
             } else if (gamepad2.dpad_left) {        // retract hiExtend arm using hiExtendController - LC 12/10
                 hiExtendController.retract();
             } else {                                // stop hiExtend arm using hiExtendController - LC 12/10
-                hiExtendController.stop_arm();
+                hiExtendController.stop();
             }
 
             //runs the hiJoint to -1100 when press and holding a calls in the file hiJointPIDController - LC 12/9
@@ -195,7 +196,7 @@ public class CompTeleOp extends LinearOpMode {
         intakeRoller.setPower(0);
     }
 
-    private double getBatteryVoltage() {
+    public double getBatteryVoltage() {
         double voltage = Double.POSITIVE_INFINITY;
         for (VoltageSensor sensor : hardwareMap.voltageSensor) {
             double currentVoltage = sensor.getVoltage();
@@ -206,7 +207,7 @@ public class CompTeleOp extends LinearOpMode {
         return voltage;
     }
 
-    private double getCpuUtilization() {
+    public double getCpuUtilization() {
         Runtime runtime = Runtime.getRuntime();
         double usedMemory = runtime.totalMemory() - runtime.freeMemory();
         double maxMemory = runtime.maxMemory();

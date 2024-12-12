@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.Constants;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Config
 public class DriveController {
 
     // Declare the drive motors
@@ -53,7 +54,7 @@ public class DriveController {
         }
 
         // Apply scaling factor based on the right trigger - LC 12/10
-        double scalingFactor = gamepad.right_trigger > 0.5 ? 0.3 : 0.7;
+        double scalingFactor = gamepad.right_trigger > 0.5 ? 0.3 : 0.8;
         leftFrontPower *= scalingFactor;
         rightFrontPower *= scalingFactor;
         leftBackPower *= scalingFactor;
@@ -65,9 +66,9 @@ public class DriveController {
         backleftDrive.setPower(leftBackPower);
         backrightDrive.setPower(rightBackPower);
 
-        telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontleftDrive, frontrightDrive);
-        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backleftDrive, backrightDrive);
-        telemetry.update();
+        //telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontleftDrive, frontrightDrive);
+        //telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backleftDrive, backrightDrive);
+        //telemetry.update();
 
     }
 }

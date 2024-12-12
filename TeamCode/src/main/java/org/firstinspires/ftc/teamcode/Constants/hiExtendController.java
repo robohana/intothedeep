@@ -34,7 +34,7 @@ public class hiExtendController {
         hiExtend.setPower(RETRACT_POWER);
     }
     // Stops the arm by setting the DcMotor power to STOP_POWER - LC 12/10
-    public void stop_arm() {
+    public void stop() {
         hiExtend.setPower(STOP_POWER);
     }
 }

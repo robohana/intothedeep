@@ -37,7 +37,7 @@ public class IntakeRollerController {
     }
 
     // Stops the intake roller by setting the servo power to STOP_POWER - LC 12/10
-    public void stopintake() {
+    public void stop() {
         intakeRoller.setPower(STOP_POWER);
     }
 }

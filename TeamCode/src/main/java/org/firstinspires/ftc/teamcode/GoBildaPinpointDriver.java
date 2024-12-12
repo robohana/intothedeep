@@ -25,6 +25,7 @@ package org.firstinspires.ftc.teamcode;
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 
 import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
@@ -47,7 +48,7 @@ import java.util.Arrays;
         xmlTag = "goBILDAPinpoint",
         description ="goBILDA® Pinpoint Odometry Computer (IMU Sensor Fusion for 2 Wheel Odometry)"
         )
-
+@Disabled
 public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSimple> {
 
     private int deviceStatus   = 0;
