@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Constants;
 
-
-
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,6 +15,10 @@ public class hiJointPIDController {
     private final double feedforward;
     // Conversion factor from encoder ticks to degrees - LC 12/9
     private final double ticksPerDegree;
+
+    public double integralSum = 0;
+    public double previousError = 0;
+    public double target = 0;
 
 
 
@@ -35,7 +37,15 @@ public class hiJointPIDController {
         this.hiJointMotor = hiJointMotor;
         this.feedforward = f;
         this.ticksPerDegree = ticksPerDegree;
+
     }
+
+    public void reset() {
+        integralSum = 0;
+        previousError = 0;
+        target = 0;
+    }
+
     /**
      * Updates the PID coefficients dynamically. - LC 12/9
      *

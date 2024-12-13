@@ -1,5 +1,4 @@
-package org.firstinspires.ftc.teamcode;
-
+package org.firstinspires.ftc.teamcode.Auto;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -20,16 +19,13 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.Constants.hiJointPIDController;
 import org.firstinspires.ftc.teamcode.Constants.vsPIDController;
 
-
-@Config
-@Autonomous(name = "AutoRedOdo")//, preselectTeleOp = "CompTeleOp")
+@Autonomous(name = "AutoRed_F3", preselectTeleOp = "CompTeleOp")
 public class AutoRed_F3 extends LinearOpMode {
-    public static double d_DISTANCE1 = 24; // in
+    public static double d_DISTANCE1 = 22; // in
     public static double d_DISTANCE2 = 50;
     public static double d_DISTANCE3 = 40;
     public static double d_DISTANCE4 = 8;
     public static double d_DISTANCE5 = 45;
-
 
     public static double s_DISTANCE1 = 20;
     public static double s_DISTANCE2 = 8;
@@ -45,10 +41,11 @@ public class AutoRed_F3 extends LinearOpMode {
     public DcMotor rightviperSlide;
     public CRServo claw;
 
-
     public static double ARM_P = 0.005, ARM_I = 0, ARM_D = 0.0009, ARM_F = 0.1;
     private static final double ARM_TICKS_PER_DEGREE = 5281.1 / 180.0;
     private static final int ARM_TARGET = -500;
+    private static final int ARM_TARGET2 = 0;
+
 
     public static double VS_P = 0.01, VS_I = 0, VS_D = 0.0001, VS_F = 0.1;
     private static final double VS_TICKS_PER_DEGREE = 537.7 / 180.0;
@@ -56,20 +53,10 @@ public class AutoRed_F3 extends LinearOpMode {
     private static final int VS_TARGET2 = 3900;
     private static final int VS_TARGET3 = 0;
 
-
-
     private SampleMecanumDrive drive;
     public hiJointPIDController hiJointPIDController;
     public vsPIDController vsPIDController;
     public ClawController clawController;
-
-
-
-
-
-    public void score(){
-
-    }
 
     public void runOpMode() throws InterruptedException {
         // makes it so that we can edit variable in dashboard instead of having to replug in every few seconds - LC 12/9
@@ -77,8 +64,6 @@ public class AutoRed_F3 extends LinearOpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         double voltage = getBatteryVoltage();
         double cpuUtilization = getCpuUtilization();
-
-        //arm_controller = new PIDController(arm_p, arm_i, arm_d);
 
         claw = hardwareMap.get(CRServo.class, "claw");
 
@@ -104,8 +89,6 @@ public class AutoRed_F3 extends LinearOpMode {
 
         long startTime = System.currentTimeMillis(); // Record the starting time
 
-
-
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
 
@@ -116,7 +99,7 @@ public class AutoRed_F3 extends LinearOpMode {
          *  and then be able to score more than one specimen during auto. - LC 12/10
          */
         Trajectory trajectory1 = drive.trajectoryBuilder(startPose)
-                .forward(d_DISTANCE1) // 24
+                .forward(d_DISTANCE1) // 22
                 .build();
 
         Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
@@ -142,13 +125,19 @@ public class AutoRed_F3 extends LinearOpMode {
 
         if (isStopRequested()) return;
 
+        /*
+         * Runs sequence, runs the joint angles up slightly to be out of the way of the viper
+         * slides then it runs through the trajectory seq made above - LC 12/9
+         */
         while (!isStopRequested() && timer.seconds() < RUNTIME) {
-            /*
-            * Runs sequence, runs the joint angles up slightly to be out of the way of the viper
-            * slides then it runs through the trajectory seq made above - LC 12/9
-            */
+
+            hiJointPIDController.reset();
+
             hiJointPIDController.setTarget(ARM_TARGET);
-            while (opModeIsActive() && (System.currentTimeMillis() - startTime) < 1000) {
+
+            while (opModeIsActive() &&
+                    (Math.abs(hiJoint.getCurrentPosition() - hiJointPIDController.getTarget()) > 100) &&
+                    ((System.currentTimeMillis() - startTime) < 15000)) {
                 hiJointPIDController.update();
 
                 // Optionally, add telemetry for debugging
@@ -167,7 +156,6 @@ public class AutoRed_F3 extends LinearOpMode {
             while (opModeIsActive() && Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > 50) {
                 vsPIDController.update();
 
-
                 // Optionally, add telemetry for debugging
                 telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
                 telemetry.addData("VS Target", vsPIDController.getTarget());
@@ -179,28 +167,24 @@ public class AutoRed_F3 extends LinearOpMode {
             //gets us closer to the bar once our vs are up so that we can hang the specimen - LC 12/10
             drive.followTrajectory(trajectory2);
 
-            /*//lowers the vs slightly so that we can hang the specimen on securely, this is the pull down part - LC 12/10
-            vsPIDController.setTarget(VS_TARGET2);
-            while (opModeIsActive() && Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > 50) {
-                vsPIDController.update();
-
-                // Optionally, add telemetry for debugging - LC 12/10
-                telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
-                telemetry.addData("VS Target", vsPIDController.getTarget());
-                telemetry.update();
-            }
-            leftviperSlide.setPower(0);
-            rightviperSlide.setPower(0);*/
-
-            //TODO: open claw to release the sample after it is hung
             clawController.open();
             sleep(1000);
 
             // reverse so that we can lower the vs and be clear of the bars - LC 12/10
             drive.followTrajectory(trajectory3);
 
-            //clawController.close();
-            //sleep(1000);
+            while (opModeIsActive() &&
+                    (Math.abs(hiJoint.getCurrentPosition() - hiJointPIDController.getTarget()) > 100) &&
+                    ((System.currentTimeMillis() - startTime) < 15000)) {
+                hiJointPIDController.update();
+
+                // Optionally, add telemetry for debugging
+                telemetry.addData("hiJoint Position", hiJoint.getCurrentPosition());
+                telemetry.addData("hiJoint Target", hiJointPIDController.getTarget());
+                telemetry.addData("Elapsed Time", (System.currentTimeMillis() - startTime) / 1000.0); // Display elapsed time in seconds
+                telemetry.update();
+            }
+            hiJoint.setPower(0);
 
             leftviperSlide.setPower(-1);
             rightviperSlide.setPower(1);
@@ -209,23 +193,11 @@ public class AutoRed_F3 extends LinearOpMode {
             leftviperSlide.setPower(0);
             rightviperSlide.setPower(0);
 
-            //lower the vs down to (about) their zero position - LC 12/10
-            /*vsPIDController.setTarget(VS_TARGET3);
-            while (opModeIsActive() && Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > 100) {
-                vsPIDController.update();
-
-                // Optionally, add telemetry for debugging
-                telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
-                telemetry.addData("VS Target", vsPIDController.getTarget());
-                telemetry.update();
-            }
-            leftviperSlide.setPower(0);
-            rightviperSlide.setPower(0);*/
+            hiJoint.setPower(1);
+            sleep (1000);
 
             //run trajectory sequence where we move samples to the observation zone for the human player - LC 12/10
             drive.followTrajectorySequence(trajSeq);
-
-
 
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("finalX", poseEstimate.getX());

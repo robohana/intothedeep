@@ -51,7 +51,6 @@ public class CompTeleOp extends LinearOpMode {
 
     double scalingFactor = 0.5;
 
-
     double max;
 
     @Override
@@ -96,6 +95,9 @@ public class CompTeleOp extends LinearOpMode {
         //sets the directions of the two parallel viper slides in opposite directions so they will move up and down in unison. - LC
         hiJoint.setDirection(DcMotor.Direction.FORWARD);
         hiExtend.setDirection(DcMotor.Direction.FORWARD);
+
+        //hiJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //hiJoint.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         if (hiJoint == null) {
             throw new NullPointerException("hiJoint is null. Check your configuration.");
@@ -174,8 +176,13 @@ public class CompTeleOp extends LinearOpMode {
                 hiJointPIDController.setTarget(ARM_TARGET2);
                 hiJointPIDController.update();
             }
+            /*if (gamepad2.y) {
+                hiJointPIDController.reset();
+
+            }*/
 
             telemetry.addData("Battery Voltage", voltage);
+            telemetry.addData("hiJoint POS", hiJoint.getCurrentPosition());
             telemetry.addData("CPU Utilization", String.format("%.2f%%", cpuUtilization * 100));
             telemetry.addData("ViperSlide Power","%4.2f", vSPower);
             telemetry.update();
