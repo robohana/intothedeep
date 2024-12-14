@@ -58,6 +58,54 @@ public class AutoRed_F3 extends LinearOpMode {
     public vsPIDController vsPIDController;
     public ClawController clawController;
 
+    public void moveJointToTarget(
+            int targetPosition,
+            long timeoutMillis,
+            double tolerance
+    ) {
+        hiJointPIDController.setTarget(targetPosition); // Set the PID target
+        long startTime = System.currentTimeMillis(); // Record start time
+
+        // Loop until the target is reached or timeout expires
+        while (opModeIsActive() &&
+                Math.abs(hiJoint.getCurrentPosition() - hiJointPIDController.getTarget()) > tolerance &&
+                (System.currentTimeMillis() - startTime) < timeoutMillis) {
+
+            hiJointPIDController.update(); // Update PID
+
+            // Telemetry for debugging
+            telemetry.addData("hiJoint Position", hiJoint.getCurrentPosition());
+            telemetry.addData("hiJoint Target", hiJointPIDController.getTarget());
+            telemetry.addData("Elapsed Time", (System.currentTimeMillis() - startTime) / 1000.0);
+            telemetry.update();
+        }
+
+        hiJoint.setPower(0); // Stop the joint
+    }
+    public void moveViperSlideToTarget(
+            int targetPosition,
+            double tolerance
+    ) {
+        vsPIDController.setTarget(targetPosition); // Set the PID target
+        long startTime = System.currentTimeMillis(); // Record start time
+
+        // Loop until the target is reached or timeout expires
+        while (opModeIsActive() &&
+                Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > tolerance) {
+
+            vsPIDController.update(); // Update PID
+
+            // Telemetry for debugging
+            telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
+            telemetry.addData("VS Target", vsPIDController.getTarget());
+            telemetry.update();
+        }
+
+        // Stop both viper slides
+        leftviperSlide.setPower(0);
+        rightviperSlide.setPower(0);
+    }
+
     public void runOpMode() throws InterruptedException {
         // makes it so that we can edit variable in dashboard instead of having to replug in every few seconds - LC 12/9
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -91,6 +139,11 @@ public class AutoRed_F3 extends LinearOpMode {
 
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
+
+        hiJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hiJoint.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftviperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftviperSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         /*
          * This trajectory sequence runs right now from the line up position to then push 2 of
@@ -131,38 +184,15 @@ public class AutoRed_F3 extends LinearOpMode {
          */
         while (!isStopRequested() && timer.seconds() < RUNTIME) {
 
-            hiJointPIDController.reset();
-
             hiJointPIDController.setTarget(ARM_TARGET);
 
-            while (opModeIsActive() &&
-                    (Math.abs(hiJoint.getCurrentPosition() - hiJointPIDController.getTarget()) > 100) &&
-                    ((System.currentTimeMillis() - startTime) < 15000)) {
-                hiJointPIDController.update();
-
-                // Optionally, add telemetry for debugging
-                telemetry.addData("hiJoint Position", hiJoint.getCurrentPosition());
-                telemetry.addData("hiJoint Target", hiJointPIDController.getTarget());
-                telemetry.addData("Elapsed Time", (System.currentTimeMillis() - startTime) / 1000.0); // Display elapsed time in seconds
-                telemetry.update();
-            }
-            hiJoint.setPower(0);
+            moveJointToTarget(-600, 15000, 50);
 
             // runs us forward to the chambers in order to have the specimens - LC 12/10
             drive.followTrajectory(trajectory1);
 
             // puts the vs up high enough so we are in position to hang a sample once we move slightly forward - LC 12/10
-            vsPIDController.setTarget(VS_TARGET1);
-            while (opModeIsActive() && Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > 50) {
-                vsPIDController.update();
-
-                // Optionally, add telemetry for debugging
-                telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
-                telemetry.addData("VS Target", vsPIDController.getTarget());
-                telemetry.update();
-            }
-            leftviperSlide.setPower(0);
-            rightviperSlide.setPower(0);
+            moveViperSlideToTarget(3500, 50);
 
             //gets us closer to the bar once our vs are up so that we can hang the specimen - LC 12/10
             drive.followTrajectory(trajectory2);
@@ -173,18 +203,7 @@ public class AutoRed_F3 extends LinearOpMode {
             // reverse so that we can lower the vs and be clear of the bars - LC 12/10
             drive.followTrajectory(trajectory3);
 
-            while (opModeIsActive() &&
-                    (Math.abs(hiJoint.getCurrentPosition() - hiJointPIDController.getTarget()) > 100) &&
-                    ((System.currentTimeMillis() - startTime) < 15000)) {
-                hiJointPIDController.update();
-
-                // Optionally, add telemetry for debugging
-                telemetry.addData("hiJoint Position", hiJoint.getCurrentPosition());
-                telemetry.addData("hiJoint Target", hiJointPIDController.getTarget());
-                telemetry.addData("Elapsed Time", (System.currentTimeMillis() - startTime) / 1000.0); // Display elapsed time in seconds
-                telemetry.update();
-            }
-            hiJoint.setPower(0);
+            moveJointToTarget(-600, 15000, 50);
 
             leftviperSlide.setPower(-1);
             rightviperSlide.setPower(1);
@@ -192,9 +211,6 @@ public class AutoRed_F3 extends LinearOpMode {
 
             leftviperSlide.setPower(0);
             rightviperSlide.setPower(0);
-
-            hiJoint.setPower(1);
-            sleep (1000);
 
             //run trajectory sequence where we move samples to the observation zone for the human player - LC 12/10
             drive.followTrajectorySequence(trajSeq);

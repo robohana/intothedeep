@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Auto;
+package org.firstinspires.ftc.teamcode.Test;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -18,8 +18,8 @@ import org.firstinspires.ftc.teamcode.Constants.vsPIDController;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "AutoBlue_A4", preselectTeleOp = "CompTeleOp")
-public class AutoBlue_A4 extends LinearOpMode{
+@Autonomous(name = "2SP_AutoRed_F3", preselectTeleOp = "CompTeleOp")
+public class TwoSampleAutoRedF3 extends LinearOpMode{
     public static double d_DISTANCE1 = 22; // in
     public static double d_DISTANCE2 = 50;
     public static double d_DISTANCE3 = 40;
@@ -130,7 +130,7 @@ public class AutoBlue_A4 extends LinearOpMode{
          * X and Y are in inches - LC 12/8
          * Heading is in Radians - LC 12/8
          */
-        Pose2d startPose = new Pose2d(-1, 50, -1.5707963268);
+        Pose2d startPose = new Pose2d(1, -50, 1.5707963268);
         drive.setPoseEstimate(startPose);
 
         clawController = new ClawController(claw);
@@ -145,7 +145,6 @@ public class AutoBlue_A4 extends LinearOpMode{
         leftviperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftviperSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
         /*
          * This trajectory sequence runs right now from the line up position to then push 2 of
          * the red samples into the observation zone for the human player to turn them in specimens. - LC 12/9
@@ -153,7 +152,7 @@ public class AutoBlue_A4 extends LinearOpMode{
          *  and then be able to score more than one specimen during auto. - LC 12/10
          */
         Trajectory trajectory1 = drive.trajectoryBuilder(startPose)
-                .forward(d_DISTANCE1) // 22
+                .forward(21) // 22
                 .build();
 
         Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
@@ -164,15 +163,41 @@ public class AutoBlue_A4 extends LinearOpMode{
                 .back(d_DISTANCE4) // 8
                 .build();
 
-        TrajectorySequence trajSeq = drive.trajectorySequenceBuilder(trajectory3.end())
+        /*TrajectorySequence trajectory4 = drive.trajectorySequenceBuilder(trajectory3.end())
                 .turn(Math.toRadians(-ANGLE1)) // 45 deg
                 .strafeRight(s_DISTANCE1) // 20
-                .forward(d_DISTANCE3)// 40
+                .forward(d_DISTANCE3)// 40 - might change this one because it goes really far forward
                 .turn(Math.toRadians(-ANGLE2)) // 135 deg
                 .forward(d_DISTANCE3) // 40
-                .back(d_DISTANCE2) // 50
-                .strafeLeft(s_DISTANCE2) // 10
-                .forward(d_DISTANCE5) // 45
+                .back(8) // 50
+                .strafeLeft(10) // 5
+                .forward(10) // 10
+                .build();*/
+
+        TrajectorySequence trajectory4 = drive.trajectorySequenceBuilder(trajectory3.end())
+                .turn(Math.toRadians(-180)) // 45 deg
+                .strafeLeft(52) // 20
+                .forward(25)// 40 - might change this one because it goes really far forward
+                .build();
+
+        TrajectorySequence trajectory5 = drive.trajectorySequenceBuilder(trajectory4.end())
+                .back(10)
+                .turn(Math.toRadians(-180)) // 90 deg
+                .forward(18)// no clue yet what this distance has to be
+                .strafeLeft(60) // 60 - go to the submursible again
+                .build();
+
+        Trajectory trajectory6 = drive.trajectoryBuilder(trajectory5.end())
+                .forward(9) // 8
+                .build();
+
+        Trajectory trajectory7 = drive.trajectoryBuilder(trajectory6.end())
+                .back(12) // 8
+                .build();
+
+        TrajectorySequence trajectory8 = drive.trajectorySequenceBuilder(trajectory7.end())
+                .strafeRight(60) // 60
+                .back(12) // 12
                 .build();
 
         waitForStart();
@@ -185,25 +210,32 @@ public class AutoBlue_A4 extends LinearOpMode{
          */
         while (!isStopRequested() && timer.seconds() < RUNTIME) {
 
+            //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13
             moveJointToTarget(-600, 15000, 50);
 
-            // runs us forward to the chambers in order to have the specimens - LC 12/10
+
+            // runs us forward to the chambers in order to have the specimens, f: 22 - LC 12/10
             drive.followTrajectory(trajectory1);
 
             // puts the vs up high enough so we are in position to hang a sample once we move slightly forward - LC 12/10
-            moveViperSlideToTarget(3500, 50);
+            // Move viper slides to position 3500 with a tolerance of 50 - LC 12/13
+            moveViperSlideToTarget(3000, 50);
 
-            //gets us closer to the bar once our vs are up so that we can hang the specimen - LC 12/10
+
+            //gets us closer to the bar once our vs are up so that we can hang the specimen, f:8 - LC 12/10
             drive.followTrajectory(trajectory2);
 
+            //open claw to release specimen - LC 12/13
             clawController.open();
             sleep(1000);
 
-            // reverse so that we can lower the vs and be clear of the bars - LC 12/10
+            // reverse so that we can lower the vs and be clear of the bars, b:8 - LC 12/10
             drive.followTrajectory(trajectory3);
 
+            //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13
             moveJointToTarget(-600, 15000, 50);
 
+            //runs vs down to 0 position with help from gravity then set power to zero - LC 12/13
             leftviperSlide.setPower(-1);
             rightviperSlide.setPower(1);
             sleep(500);
@@ -212,7 +244,44 @@ public class AutoBlue_A4 extends LinearOpMode{
             rightviperSlide.setPower(0);
 
             //run trajectory sequence where we move samples to the observation zone for the human player - LC 12/10
-            drive.followTrajectorySequence(trajSeq);
+            drive.followTrajectorySequence(trajectory4);
+
+            clawController.close();
+            sleep(1000);
+
+            //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13
+            moveJointToTarget(-600, 15000, 50);
+
+            // Move viper slides to position 100 with a tolerance of 50, just to get off the wall - LC 12/13
+            moveViperSlideToTarget(1000, 50);
+
+            drive.followTrajectorySequence(trajectory5);
+
+            moveJointToTarget(-600, 15000, 50);
+
+            // Move viper slides to position 100 with a tolerance of 50, up to the chamber - LC 12/13
+            moveViperSlideToTarget(3500, 50);
+
+            drive.followTrajectory(trajectory6);
+
+            //open claw to release specimen - LC 12/13
+            clawController.open();
+            sleep(1000);
+
+            drive.followTrajectory(trajectory7);
+
+            moveJointToTarget(-600, 15000, 50);
+
+            //runs vs down to 0 position with help from gravity then set power to zero - LC 12/13
+            leftviperSlide.setPower(-1);
+            rightviperSlide.setPower(1);
+            sleep(700);
+
+            leftviperSlide.setPower(0);
+            rightviperSlide.setPower(0);
+
+            drive.followTrajectorySequence(trajectory8);
+
 
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("finalX", poseEstimate.getX());
@@ -225,22 +294,22 @@ public class AutoBlue_A4 extends LinearOpMode{
             telemetry.update();
 
             while (!isStopRequested()) idle();
-            }
-        }
-        public double getBatteryVoltage() {
-            double voltage = Double.POSITIVE_INFINITY;
-            for (VoltageSensor sensor : hardwareMap.voltageSensor) {
-                double currentVoltage = sensor.getVoltage();
-                if (currentVoltage > 0) {
-                    voltage = Math.min(voltage, currentVoltage);
-                }
-            }
-            return voltage;
-        }
-        public double getCpuUtilization() {
-            Runtime runtime = Runtime.getRuntime();
-            double usedMemory = runtime.totalMemory() - runtime.freeMemory();
-            double maxMemory = runtime.maxMemory();
-            return usedMemory / maxMemory;
         }
     }
+    public double getBatteryVoltage() {
+        double voltage = Double.POSITIVE_INFINITY;
+        for (VoltageSensor sensor : hardwareMap.voltageSensor) {
+            double currentVoltage = sensor.getVoltage();
+            if (currentVoltage > 0) {
+                voltage = Math.min(voltage, currentVoltage);
+            }
+        }
+        return voltage;
+    }
+    public double getCpuUtilization() {
+        Runtime runtime = Runtime.getRuntime();
+        double usedMemory = runtime.totalMemory() - runtime.freeMemory();
+        double maxMemory = runtime.maxMemory();
+        return usedMemory / maxMemory;
+    }
+}

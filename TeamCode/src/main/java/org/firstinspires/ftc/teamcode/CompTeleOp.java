@@ -176,10 +176,6 @@ public class CompTeleOp extends LinearOpMode {
                 hiJointPIDController.setTarget(ARM_TARGET2);
                 hiJointPIDController.update();
             }
-            /*if (gamepad2.y) {
-                hiJointPIDController.reset();
-
-            }*/
 
             telemetry.addData("Battery Voltage", voltage);
             telemetry.addData("hiJoint POS", hiJoint.getCurrentPosition());

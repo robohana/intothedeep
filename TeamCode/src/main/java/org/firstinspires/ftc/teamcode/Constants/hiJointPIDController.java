@@ -40,12 +40,6 @@ public class hiJointPIDController {
 
     }
 
-    public void reset() {
-        integralSum = 0;
-        previousError = 0;
-        target = 0;
-    }
-
     /**
      * Updates the PID coefficients dynamically. - LC 12/9
      *

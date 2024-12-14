@@ -17,6 +17,10 @@ public class vsPIDController {
     // Conversion factor from encoder ticks to degrees - LC 12/9
     private final double ticksPerDegree;
 
+    public double integralSum = 0;
+    public double previousError = 0;
+    public double target = 0;
+
     /**
      * Constructor for the vsPIDController class. - LC 12/9
      *
