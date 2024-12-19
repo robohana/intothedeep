@@ -40,7 +40,7 @@ public class CompTeleOp extends LinearOpMode {
     public static final int ARM_TARGET1 = -1100;
     public static final int ARM_TARGET2 = -400;
 
-    public static double VS_P = 0, VS_I = 0, VS_D = 0, VS_F = 0;
+    public static double VS_P = 0.01, VS_I = 0, VS_D = 0.0001, VS_F = 0.1;
     private static final double VS_TICKS_PER_DEGREE = 5281.1 / 180.0;
     private static final int VS_TARGET = -300;
     public vsPIDController vsPIDController;

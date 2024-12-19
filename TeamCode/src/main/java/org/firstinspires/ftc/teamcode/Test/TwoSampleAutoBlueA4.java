@@ -33,8 +33,6 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
     public static double ANGLE1 = 45; // deg
     public static double ANGLE2 = 132; // deg
 
-    public static double RUNTIME = 20;
-
     private DcMotor hiJoint;
     public DcMotor leftviperSlide;
     public DcMotor rightviperSlide;
@@ -137,8 +135,6 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
 
         long startTime = System.currentTimeMillis(); // Record the starting time
 
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
 
         hiJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hiJoint.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -152,7 +148,7 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
          *  and then be able to score more than one specimen during auto. - LC 12/10
          */
         Trajectory trajectory1 = drive.trajectoryBuilder(startPose)
-                .forward(21) // 22
+                .forward(22) // 22
                 .build();
 
         Trajectory trajectory2 = drive.trajectoryBuilder(trajectory1.end())
@@ -188,11 +184,11 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
                 .build();
 
         Trajectory trajectory6 = drive.trajectoryBuilder(trajectory5.end())
-                .forward(9) // 8
+                .forward(8) // 8
                 .build();
 
         Trajectory trajectory7 = drive.trajectoryBuilder(trajectory6.end())
-                .back(12) // 8
+                .back(8) // 8
                 .build();
 
         TrajectorySequence trajectory8 = drive.trajectorySequenceBuilder(trajectory7.end())
@@ -202,13 +198,16 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
 
         waitForStart();
 
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+
         if (isStopRequested()) return;
 
         /*
          * Runs sequence, runs the joint angles up slightly to be out of the way of the viper
          * slides then it runs through the trajectory seq made above - LC 12/9
          */
-        while (!isStopRequested() && timer.seconds() < RUNTIME) {
+        while (opModeIsActive()) {
 
             //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13
             moveJointToTarget(-600, 15000, 50);
@@ -304,6 +303,7 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
                 voltage = Math.min(voltage, currentVoltage);
             }
         }
+
         return voltage;
     }
     public double getCpuUtilization() {

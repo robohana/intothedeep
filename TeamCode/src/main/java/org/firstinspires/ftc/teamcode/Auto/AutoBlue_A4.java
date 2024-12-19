@@ -33,8 +33,6 @@ public class AutoBlue_A4 extends LinearOpMode{
     public static double ANGLE1 = 45; // deg
     public static double ANGLE2 = 132; // deg
 
-    public static double RUNTIME = 20;
-
     private DcMotor hiJoint;
     public DcMotor leftviperSlide;
     public DcMotor rightviperSlide;
@@ -137,9 +135,6 @@ public class AutoBlue_A4 extends LinearOpMode{
 
         long startTime = System.currentTimeMillis(); // Record the starting time
 
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-
         hiJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         hiJoint.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftviperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -177,13 +172,16 @@ public class AutoBlue_A4 extends LinearOpMode{
 
         waitForStart();
 
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+
         if (isStopRequested()) return;
 
         /*
          * Runs sequence, runs the joint angles up slightly to be out of the way of the viper
          * slides then it runs through the trajectory seq made above - LC 12/9
          */
-        while (!isStopRequested() && timer.seconds() < RUNTIME) {
+        while (opModeIsActive()) {
 
             moveJointToTarget(-600, 15000, 50);
 
