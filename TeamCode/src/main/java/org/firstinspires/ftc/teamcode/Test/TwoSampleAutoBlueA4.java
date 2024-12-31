@@ -59,51 +59,51 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
             long timeoutMillis,
             double tolerance
     ) {
-        hiJointPIDController.setTarget(targetPosition); // Set the PID target
-        long startTime = System.currentTimeMillis(); // Record start time
+        hiJointPIDController.setTarget(targetPosition); // Set the PID target - LC 12/13/24
+        long startTime = System.currentTimeMillis(); // Record start time - LC 12/13/24
 
-        // Loop until the target is reached or timeout expires
+        // Loop until the target is reached or timeout expires - LC 12/13/24
         while (opModeIsActive() &&
                 Math.abs(hiJoint.getCurrentPosition() - hiJointPIDController.getTarget()) > tolerance &&
                 (System.currentTimeMillis() - startTime) < timeoutMillis) {
 
-            hiJointPIDController.update(); // Update PID
+            hiJointPIDController.update(); // Update PID - LC 12/13/24
 
-            // Telemetry for debugging
+            // Telemetry for debugging - LC 12/13/24
             telemetry.addData("hiJoint Position", hiJoint.getCurrentPosition());
             telemetry.addData("hiJoint Target", hiJointPIDController.getTarget());
             telemetry.addData("Elapsed Time", (System.currentTimeMillis() - startTime) / 1000.0);
             telemetry.update();
         }
 
-        hiJoint.setPower(0); // Stop the joint
+        hiJoint.setPower(0); // Stop the joint - LC 12/13/24
     }
     public void moveViperSlideToTarget(
             int targetPosition,
             double tolerance
     ) {
-        vsPIDController.setTarget(targetPosition); // Set the PID target
-        long startTime = System.currentTimeMillis(); // Record start time
+        vsPIDController.setTarget(targetPosition); // Set the PID target - LC 12/13/24
+        long startTime = System.currentTimeMillis(); // Record start time - LC 12/13/24
 
-        // Loop until the target is reached or timeout expires
+        // Loop until the target is reached or timeout expires - LC 12/13/24
         while (opModeIsActive() &&
                 Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > tolerance) {
 
-            vsPIDController.update(); // Update PID
+            vsPIDController.update(); // Update PID - LC 12/13/24
 
-            // Telemetry for debugging
+            // Telemetry for debugging - LC 12/13/24
             telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
             telemetry.addData("VS Target", vsPIDController.getTarget());
             telemetry.update();
         }
 
-        // Stop both viper slides
+        // Stop both viper slides - LC 12/13/24
         leftviperSlide.setPower(0);
         rightviperSlide.setPower(0);
     }
 
     public void runOpMode() throws InterruptedException {
-        // makes it so that we can edit variable in dashboard instead of having to replug in every few seconds - LC 12/9
+        // makes it so that we can edit variable in dashboard instead of having to replug in every few seconds - LC 12/9/23
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         drive = new SampleMecanumDrive(hardwareMap);
         double voltage = getBatteryVoltage();
@@ -121,19 +121,16 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
         vsPIDController = new vsPIDController(leftviperSlide, rightviperSlide, VS_P, VS_I, VS_D, VS_F, VS_TICKS_PER_DEGREE);
 
         /*
-         * This start pose is specifically for the orientation where the robot is facing the submersible
-         * on the right side. It is on the tile that is to the left of the field x axis. Then the right
-         * set of wheels are right against the joint of the two ties. They are not on the join of the two
-         * tiles but right next to it. - LC 12/9
-         * X and Y are in inches - LC 12/8
-         * Heading is in Radians - LC 12/8
+         * This start pose is specifically for the orientation where the robot is facing the submersible on the right side. It is on the tile  that is to the left of the field x axis. Then the right set of wheels are right against the joint of the two ties. They are not on  the join of the two tiles but right next to it. - LC 12/9/24
+         * X and Y are in inches - LC 12/8/24
+         * Heading is in Radians - LC 12/8/24
          */
         Pose2d startPose = new Pose2d(-1, 50, -1.5707963268);
         drive.setPoseEstimate(startPose);
 
         clawController = new ClawController(claw);
 
-        long startTime = System.currentTimeMillis(); // Record the starting time
+        long startTime = System.currentTimeMillis(); // Record the starting time - LC 12/13/24
 
 
         hiJoint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -142,10 +139,8 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
         leftviperSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         /*
-         * This trajectory sequence runs right now from the line up position to then push 2 of
-         * the red samples into the observation zone for the human player to turn them in specimens. - LC 12/9
-         *  Added in the vertical viper slides so that we can score a specimen that we preload
-         *  and then be able to score more than one specimen during auto. - LC 12/10
+         * This trajectory sequence runs right now from the line up position to then push 2 of the red samples into the observation zone for   the human player to turn them in specimens. - LC 12/9/24
+         * Added in the vertical viper slides so that we can score a specimen that we preload and then be able to score more than one specimen during auto. - LC 12/10/24
          */
         Trajectory trajectory1 = drive.trajectoryBuilder(startPose)
                 .forward(22) // 22
@@ -204,37 +199,36 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
         if (isStopRequested()) return;
 
         /*
-         * Runs sequence, runs the joint angles up slightly to be out of the way of the viper
-         * slides then it runs through the trajectory seq made above - LC 12/9
+         * Runs sequence, runs the joint angles up slightly to be out of the way of the viper slides then it runs through the trajectory seq   made above - LC 12/9/24
          */
         while (opModeIsActive()) {
 
-            //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13
+            //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13/24
             moveJointToTarget(-600, 15000, 50);
 
 
-            // runs us forward to the chambers in order to have the specimens, f: 22 - LC 12/10
+            // runs us forward to the chambers in order to have the specimens, f: 22 - LC 12/10/24
             drive.followTrajectory(trajectory1);
 
-            // puts the vs up high enough so we are in position to hang a sample once we move slightly forward - LC 12/10
-            // Move viper slides to position 3500 with a tolerance of 50 - LC 12/13
+            // puts the vs up high enough so we are in position to hang a sample once we move slightly forward - LC 12/10/24
+            // Move viper slides to position 3500 with a tolerance of 50 - LC 12/13/24
             moveViperSlideToTarget(3000, 50);
 
 
-            //gets us closer to the bar once our vs are up so that we can hang the specimen, f:8 - LC 12/10
+            //gets us closer to the bar once our vs are up so that we can hang the specimen, f:8 - LC 12/10/24
             drive.followTrajectory(trajectory2);
 
-            //open claw to release specimen - LC 12/13
+            //open claw to release specimen - LC 12/13/24
             clawController.open();
             sleep(1000);
 
-            // reverse so that we can lower the vs and be clear of the bars, b:8 - LC 12/10
+            // reverse so that we can lower the vs and be clear of the bars, b:8 - LC 12/10/24
             drive.followTrajectory(trajectory3);
 
-            //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13
+            //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13/24
             moveJointToTarget(-600, 15000, 50);
 
-            //runs vs down to 0 position with help from gravity then set power to zero - LC 12/13
+            //runs vs down to 0 position with help from gravity then set power to zero - LC 12/13/24
             leftviperSlide.setPower(-1);
             rightviperSlide.setPower(1);
             sleep(500);
@@ -242,28 +236,28 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
             leftviperSlide.setPower(0);
             rightviperSlide.setPower(0);
 
-            //run trajectory sequence where we move samples to the observation zone for the human player - LC 12/10
+            //run trajectory sequence where we move samples to the observation zone for the human player - LC 12/10/24
             drive.followTrajectorySequence(trajectory4);
 
             clawController.close();
             sleep(1000);
 
-            //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13
+            //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13/24
             moveJointToTarget(-600, 15000, 50);
 
-            // Move viper slides to position 100 with a tolerance of 50, just to get off the wall - LC 12/13
+            // Move viper slides to position 100 with a tolerance of 50, just to get off the wall - LC 12/13/24
             moveViperSlideToTarget(1000, 50);
 
             drive.followTrajectorySequence(trajectory5);
 
             moveJointToTarget(-600, 15000, 50);
 
-            // Move viper slides to position 100 with a tolerance of 50, up to the chamber - LC 12/13
+            // Move viper slides to position 100 with a tolerance of 50, up to the chamber - LC 12/13/24
             moveViperSlideToTarget(3500, 50);
 
             drive.followTrajectory(trajectory6);
 
-            //open claw to release specimen - LC 12/13
+            //open claw to release specimen - LC 12/13/24
             clawController.open();
             sleep(1000);
 
@@ -271,7 +265,7 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
 
             moveJointToTarget(-600, 15000, 50);
 
-            //runs vs down to 0 position with help from gravity then set power to zero - LC 12/13
+            //runs vs down to 0 position with help from gravity then set power to zero - LC 12/13/24
             leftviperSlide.setPower(-1);
             rightviperSlide.setPower(1);
             sleep(700);
