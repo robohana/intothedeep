@@ -65,14 +65,13 @@ public class Trajectories {
                 .build();*/
 
         trajSeq = drive.trajectorySequenceBuilder(trajectory9.end())
-                .turn(Math.toRadians(-45)) // 45 deg
-                /*.strafeRight(10) // 20
+                .strafeRight(10) // 20
                 .back(30)// 40
                 .strafeLeft(7) // 40
                 .forward(45)
                 .back(50) // 50
                 .strafeLeft(7) // 10
-                .forward(45) // 45*/
+                .forward(45) // 45
                 .build();
     }
 }

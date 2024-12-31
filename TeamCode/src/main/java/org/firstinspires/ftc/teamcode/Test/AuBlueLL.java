@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.Test;
-
+// I had to import every one of these :( - LC 12/30
 import static org.firstinspires.ftc.teamcode.Test.Trajectories.trajSeq;
 import static org.firstinspires.ftc.teamcode.Test.Trajectories.trajectory1;
 import static org.firstinspires.ftc.teamcode.Test.Trajectories.trajectory2;
@@ -86,7 +86,7 @@ public class AuBlueLL  extends LinearOpMode {
         while (opModeIsActive() &&
                 Math.abs(leftviperSlide.getCurrentPosition() - vsPIDController.getTarget()) > tolerance) {
 
-            vsPIDController.update(); // Update PID
+            vsPIDController.update(); // Update PID - 12/13
 
             // Telemetry for debugging - LC 12/13
             telemetry.addData("LeftVS Position", leftviperSlide.getCurrentPosition());
@@ -98,9 +98,19 @@ public class AuBlueLL  extends LinearOpMode {
         leftviperSlide.setPower(0);
         rightviperSlide.setPower(0);
     }
+    /*
+    * This is the start of my two specimen auto with using limelight. It starts just like the previous
+    * test two specimen auto seen and tested in Meet 3 but now we have LIGHTS [They're not that bright
+    * and hard to see (be we have LIGHTS)]. I use PID controllers for hiJoint and the viper slides.
+    * With the viper slides I use gravity so that I don't actually have to pull them down as much and
+    * spend more time on that. This part of the code hangs one specimen then goes over and grabs another
+    * one off the human player wall. The code then ends there so that I can check to see if we have
+    * a specimen in our buttery paws (idfk).  - LC 12/30 */
+    // TODO: Goal would be to just have a break command in here but that wasn't working earlier the robot was not being very cooperative.  - LC 12/30
 
     public void Plan_A() {
         while (opModeIsActive()) {
+            //Start of 2 Specimen Auto
             moveJointToTarget(-600, 15000, 50);
 
             // runs us forward to the chambers in order to have the specimens, f: 22 - LC 12/10
@@ -146,7 +156,7 @@ public class AuBlueLL  extends LinearOpMode {
             drive.followTrajectory(trajectory9);
         }
     }
-    /*public void Plan_A_Cont(){
+    public void Plan_A_Cont(){
         while (opModeIsActive()) {
             drive.followTrajectorySequence(trajectory5);
 
@@ -174,11 +184,12 @@ public class AuBlueLL  extends LinearOpMode {
             rightviperSlide.setPower(0);
 
             drive.followTrajectorySequence(trajectory8);
+            continueWithPlanA = true; //reset flag - LC 12/30
         }
-    }*/
+    }
     public void Plan_B() {
-        ElapsedTime timer = new ElapsedTime(); // Create a timer to track elapsed time
-        timer.reset(); // Start the timer
+        ElapsedTime timer = new ElapsedTime(); // Create a timer to track elapsed time - LC 12/30
+        timer.reset(); // Start the timer - LC 12/30
 
         while (opModeIsActive()&& timer.seconds() < 5) {
             telemetry.addData("Now in Plan B", "");
@@ -190,6 +201,8 @@ public class AuBlueLL  extends LinearOpMode {
         if (timer.seconds() >= 10) {
             telemetry.addData("Plan B Timeout", "Time limit reached (30 seconds)");
             telemetry.update();
+            switchToPlanB = false;
+
         }
     }
 
@@ -231,9 +244,9 @@ public class AuBlueLL  extends LinearOpMode {
         LLResult result = limelight.getLatestResult();
         double ta = result.getTa();
 
-        telemetry.addData("Limelight Status", "Pipeline: %d", status.getPipelineIndex());
 
         waitForStart();
+        telemetry.addData("Limelight Status", "Pipeline: %d", status.getPipelineIndex());
 
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
@@ -245,8 +258,8 @@ public class AuBlueLL  extends LinearOpMode {
          * slides then it runs through the trajectory seq made above - LC 12/9
          */
         while (opModeIsActive()) {
-
-            moveJointToTarget(-600, 15000, 50);
+            // This is plan A Can run this or the method Plan_A() above
+            /*moveJointToTarget(-600, 15000, 50);
 
             // runs us forward to the chambers in order to have the specimens, f: 22 - LC 12/10
             drive.followTrajectory(trajectory1);
@@ -288,23 +301,34 @@ public class AuBlueLL  extends LinearOpMode {
             // Move viper slides to position 100 with a tolerance of 50, just to get off the wall - LC 12/13
             moveViperSlideToTarget(1000, 50);
 
-            drive.followTrajectory(trajectory9);
+            drive.followTrajectory(trajectory9);*/
 
-            while (ta != 0 && !switchToPlanB) {  // If specimen is found and we're not already in Plan B
-                // Plan A logic
+            /**Logic, hopefully it works now. and not continues to play A if i have commented the code out everywhere
+            * and I don't know where it is getting the information from - LC 12/30, I'm losing my sanity over here.
+            * PLZ send help**/
+
+            //TODO #1: figure out if the camera can see if a butter is on the wall before it goes in to get one. We could have a ditch then and we can also check after we have reversed to see if it was dropped. - LC 12/30
+            //TODO #2: add in a ditch during/at the very start of the match for if we accidentally drop it or something else happens on our approach - LC 12/30
+            if (ta != 0 && !switchToPlanB) {    // If specimen is found and we're not already in Plan B - LC 12/30
+                // Plan A logic - LC 12/30
+                telemetry.addData("Start", "Playing Plan A");
+                telemetry.update();
                 Plan_A();
             }
-            if (ta == 0 && !switchToPlanB) {  // If no specimen is found, switch to Plan B
+            sleep (500);
+            if (ta == 0 && !switchToPlanB) {  // If no specimen is found, switch to Plan B - LC 12/30
                 telemetry.addData("No Specimen", "Switching to Plan B");
                 telemetry.update();
                 switchToPlanB = true;
-                Plan_B();  // Run Plan B
-            } else {
-                switchToPlanB = true;
+                sleep(500);
+                Plan_B();  // Run Plan B - LC 12/30
+            } else if (ta != 0 && !switchToPlanB) { //if one condition is not met then continue A - LC 12/30
+                continueWithPlanA = true;
+                Plan_A_Cont(); // Run Plan A_Cont - LC 12/30
+            } else{
+                sleep(1000); // just do nothing if you don't have it, you will be parked so we good - LC 12/30
             }
-            while (switchToPlanB){
-                drive.followTrajectorySequence(trajSeq);
-            }
+
 
             // Continuously check if we should revert to Plan A (e.g., if the specimen is found later)
            /* while (ta != 0 && switchToPlanB) {
