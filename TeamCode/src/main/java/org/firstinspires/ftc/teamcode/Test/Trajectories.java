@@ -20,6 +20,9 @@ public class Trajectories {
     public static TrajectorySequence trajectory8;
     public static TrajectorySequence trajSeq;
 
+    /*
+     * Quick to just get this out of the way, trajectory acronyms. F = Forward, B = Back, SL = Strafe Left, SR = Strafe Right, T = Turn, S = Spline, anything else = too late at night coding - LC 12/30/24
+     */
 
     // Modify the initialize method to accept a Pose2d parameter - LC 12/30/24
     public static void initialize(SampleMecanumDrive drive, Pose2d startPose) {

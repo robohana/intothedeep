@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Constants.vsPIDController;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "AutoBlue_A4", preselectTeleOp = "CompTeleOp")
+@Autonomous(name = "AutoBlue_A4", preselectTeleOp = "CompTeleOp", group = "Blue")
 public class AutoBlue_A4 extends LinearOpMode{
     public static double d_DISTANCE1 = 22; // in
     public static double d_DISTANCE2 = 50;
@@ -137,7 +137,6 @@ public class AutoBlue_A4 extends LinearOpMode{
         hiJoint.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftviperSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftviperSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
 
         /*
          * This trajectory sequence runs right now from the line up position to then push 2 of the red samples into the observation zone for   the human player to turn them in specimens. - LC 12/9/24

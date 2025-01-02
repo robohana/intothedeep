@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.Constants.hiJointPIDController;
 import org.firstinspires.ftc.teamcode.Constants.vsPIDController;
 
-@Autonomous(name = "AutoRed_F3", preselectTeleOp = "CompTeleOp")
+@Autonomous(name = "AutoRed_F3", preselectTeleOp = "CompTeleOp", group = "Red")
 public class AutoRed_F3 extends LinearOpMode {
     public static double d_DISTANCE1 = 22; // in
     public static double d_DISTANCE2 = 50;

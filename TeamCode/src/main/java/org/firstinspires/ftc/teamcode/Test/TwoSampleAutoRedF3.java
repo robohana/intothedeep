@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Constants.vsPIDController;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "2SP_AutoRed_F3", preselectTeleOp = "CompTeleOp")
+@Autonomous(name = "2SP_AutoRed_F3", preselectTeleOp = "CompTeleOp", group = "Test")
 public class TwoSampleAutoRedF3 extends LinearOpMode{
     public static double d_DISTANCE1 = 22; // in
     public static double d_DISTANCE2 = 50;

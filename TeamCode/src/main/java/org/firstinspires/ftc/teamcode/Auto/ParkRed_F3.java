@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-@Autonomous(name = "ParkRed_F3", preselectTeleOp = "CompTeleOp")
+@Autonomous(name = "ParkRed_F3", preselectTeleOp = "CompTeleOp", group = "Red")
 public class ParkRed_F3 extends LinearOpMode {
     private SampleMecanumDrive drive;
     public static double RUNTIME = 20;

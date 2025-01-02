@@ -5,7 +5,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name = "Limelight Color Blue", group = "Examples")
+@TeleOp(name = "Limelight Color Blue", group = "Test")
 public class ColorLL_B extends LinearOpMode{
     private Limelight3A limelight;
 

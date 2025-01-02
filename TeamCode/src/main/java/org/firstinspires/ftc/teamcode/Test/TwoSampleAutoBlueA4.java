@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Constants.vsPIDController;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "2SP_AutoBlue_A4", preselectTeleOp = "CompTeleOp")
+@Autonomous(name = "2SP_AutoBlue_A4", preselectTeleOp = "CompTeleOp", group = "Test")
 public class TwoSampleAutoBlueA4 extends LinearOpMode {
     public static double d_DISTANCE1 = 22; // in
     public static double d_DISTANCE2 = 50;
@@ -175,7 +175,7 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
                 .back(10)
                 .turn(Math.toRadians(-180)) // 90 deg
                 .forward(18)// no clue yet what this distance has to be
-                .strafeLeft(60) // 60 - go to the submursible again
+                .strafeLeft(60) // 60 - go to the submersible again
                 .build();
 
         Trajectory trajectory6 = drive.trajectoryBuilder(trajectory5.end())
@@ -206,14 +206,12 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
             //Move viper slides to position -500 with a 15-second timeout and a tolerance of 100 - LC 12/13/24
             moveJointToTarget(-600, 15000, 50);
 
-
             // runs us forward to the chambers in order to have the specimens, f: 22 - LC 12/10/24
             drive.followTrajectory(trajectory1);
 
             // puts the vs up high enough so we are in position to hang a sample once we move slightly forward - LC 12/10/24
             // Move viper slides to position 3500 with a tolerance of 50 - LC 12/13/24
             moveViperSlideToTarget(3000, 50);
-
 
             //gets us closer to the bar once our vs are up so that we can hang the specimen, f:8 - LC 12/10/24
             drive.followTrajectory(trajectory2);
@@ -274,7 +272,6 @@ public class TwoSampleAutoBlueA4 extends LinearOpMode {
             rightviperSlide.setPower(0);
 
             drive.followTrajectorySequence(trajectory8);
-
 
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("finalX", poseEstimate.getX());
