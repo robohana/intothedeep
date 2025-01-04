@@ -115,6 +115,9 @@ public class CompTeleOp extends LinearOpMode {
 
             if (gamepad1.x && !lockEnabled) {
                 lockEnabled = true;
+                telemetry.addData("Lock Status", lockEnabled ? "Lock" : "On");
+            } else if (gamepad1.y && lockEnabled){
+                lockEnabled = false;
             }
 
             // If locked, set all motors to zero and skip further processing - LC 2024
