@@ -39,6 +39,8 @@ public class CompTeleOp extends LinearOpMode {
     public hiJointPIDController hiJointPIDController;
     public static final int ARM_TARGET1 = -1100;
     public static final int ARM_TARGET2 = -400;
+    public static final int ARM_TARGET3 = -1700;
+
 
     public static double VS_P = 0.01, VS_I = 0, VS_D = 0.0001, VS_F = 0.1;
     private static final double VS_TICKS_PER_DEGREE = 5281.1 / 180.0;
@@ -116,7 +118,7 @@ public class CompTeleOp extends LinearOpMode {
             if (gamepad1.x && !lockEnabled) {
                 lockEnabled = true;
                 telemetry.addData("Lock Status", lockEnabled ? "Lock" : "On");
-            } else if (gamepad1.y && lockEnabled){
+            } else if (gamepad1.y && gamepad1.a && lockEnabled){
                 lockEnabled = false;
             }
 
@@ -166,14 +168,19 @@ public class CompTeleOp extends LinearOpMode {
                 hiExtendController.stop();
             }
 
-            //runs the hiJoint to -1100 when press and holding a calls in the file hiJointPIDController - LC 12/9/24
+            //runs the hiJoint to -1100 when press and holding a (operator) calls in the file hiJointPIDController - LC 12/9/24
             if (gamepad2.a) {
                 hiJointPIDController.setTarget(ARM_TARGET1);
                 hiJointPIDController.update();
             }
-            //runs the hiJoint to -400 when press and holding b calls in the file hiJointPIDController - LC 12/9/24
+            //runs the hiJoint to -400 when press and holding b (operator) calls in the file hiJointPIDController - LC 12/9/24
             if (gamepad2.b) {
                 hiJointPIDController.setTarget(ARM_TARGET2);
+                hiJointPIDController.update();
+            }
+            //runs the hiJoint to -1700 when press and holding x (operator) calls in the file hiJointPIDController - LC 12/9/24
+            if (gamepad2.x) {
+                hiJointPIDController.setTarget(ARM_TARGET3);
                 hiJointPIDController.update();
             }
 

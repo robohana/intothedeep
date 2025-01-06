@@ -446,7 +446,6 @@ public class AuBlueLL  extends LinearOpMode {
                 telemetry.addData("Limelight Status", "No target detected");
                 telemetry.addData("I have NO Butter", "Going to Plan B");
                 drive.followTrajectorySequence(trajSeq);
-
             } else {
                 sleep(1000);
                 telemetry.addData("Limelight & Robot Status", "Done");
